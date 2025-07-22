@@ -1,10 +1,10 @@
 import customtkinter as ctk
 import matplotlib.pyplot as plt
-
+from PIL import Image
 
 ctk.set_appearance_mode("System")    
 ctk.set_default_color_theme("green")    
-appWidth, appHeight = 600, 700
+appWidth, appHeight = 1000, 600
 
 def on_closing():
     
@@ -105,6 +105,12 @@ class App(ctk.CTk):
         self.displayBox.grid(row=6, column=0,
                              columnspan=4, padx=20,
                              pady=20, sticky="nsew")
+        
+        #For plot
+        self.imageFrame = ctk.CTkFrame(self)
+        self.imageFrame.grid(row=0,column=4,rowspan=10,padx=20,pady=20)
+        self.image_label=ctk.CTkLabel(self.imageFrame,text="")
+        self.image_label.pack()
 
 
     # This function is used to insert the 
@@ -129,6 +135,15 @@ class App(ctk.CTk):
         plt.plot(Months2,Balances2, label = "With Additional Payments")
         plt.legend()
         plt.savefig("Plot.png")
+
+        #Display Image
+        image = Image.open("Plot.png")
+        image_size = (600,400)
+        resized_image = ctk.CTkImage(light_image=image,size=image_size)
+
+        self.image_label.configure(image=resized_image)
+        self.image_label.image=resized_image
+
         return additionalMonthlyPayoff
 
         
