@@ -1,4 +1,3 @@
-import numpy as np
 
 def parse_amount(text):
     text = text.lower().replace(",", "").strip()
