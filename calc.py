@@ -187,10 +187,10 @@ class App(ctk.CTk):
         plt.plot(Mon2, Bal2, label="With Extra Payments")
 
         plt.legend()
-        plt.savefig("Plot.png")
+        plt.savefig("plot.png")
 
         # Display plot in UI
-        image = Image.open("Plot.png")
+        image = Image.open("plot.png")
         resized = ctk.CTkImage(light_image=image, size=(600, 400))
 
         self.image_label.configure(image=resized)
