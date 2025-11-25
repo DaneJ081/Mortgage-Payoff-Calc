@@ -1,5 +1,2 @@
-Todo:
-Integrate plot.png into tkinter interface
-Output total payment, interest payment, months till payoff and payoff date to tkinter interface.
-Add radial button to select option for loanTermRemaining/loanMinimumPayments parameter
-
+Overview:
+Uses Flask and Matplotlib to compare and plot the amortization of base vs extra mortgage payments.

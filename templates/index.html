@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mortgage Calculator</title>
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 700px;
+            margin: auto;
+            padding: 20px;
+        }
+        input, button {
+            padding: 10px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button {
+            background: #228B22;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: #efefef;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Mortgage Payoff Calculator</h2>
+
+<form method="POST">
+    <label>Mortgage Amount</label>
+    <input type="text" name="loan" value="250k">
+
+    <label>Interest Rate (%)</label>
+    <input type="text" name="rate" value="7">
+
+    <label>Loan Term (Years)</label>
+    <input type="text" name="term" value="30">
+
+    <label>Extra Monthly Payment ($)</label>
+    <input type="text" name="extra" value="100">
+
+    <button type="submit">Calculate</button>
+</form>
+
+{% if result %}
+<div class="result-box">
+    {% if result.error %}
+        <p style="color: red;">{{ result.error }}</p>
+    {% else %}
+        <p><b>Payoff WITHOUT extra:</b> {{ result.payoff1 }}</p>
+        <p><b>Payoff WITH extra:</b> {{ result.payoff2 }}</p>
+        <p><b>Time Saved:</b> {{ result.saved }}</p>
+
+        <h3>Payoff Chart</h3>
+        <img src="{{ result.plot }}" width="100%">
+    {% endif %}
+</div>
+{% endif %}
+
+</body>
+</html>
