@@ -1,14 +1,44 @@
 name: Super-Linter
 
-on: push
+on: 
+  push:
+    branches-ignore:
+     - main
+     paths-ignore:
+      - '**.md'
+      
 
 jobs:
   super-lint:
     name: Lint code base
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          token: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Black
+        run: pip install black
+
+
+      - name: Run Black
+        run: black .
+
+      - name: Commit code
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-action@github.com"
+          git add -A
+          git commit -m "Auto formatted with Black" || echo "No changes to commit"
+          git push 
 
       - name: Run Super-Linter
         uses: github/super-linter@v4
