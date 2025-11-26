@@ -1,6 +1,6 @@
 name: Super-Linter
 permissions:
-  contents: Write
+  contents: write
 
 on:
   push:
