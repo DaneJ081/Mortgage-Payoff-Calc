@@ -1,6 +1,6 @@
 name: Super-Linter
 
-on: 
+on:
   push:
     branches-ignore:
       - main
@@ -30,13 +30,21 @@ jobs:
       - name: Run Black
         run: black .
 
-      - name: Commit code
+      - name: Commit formatted code
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-action@github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Authenticate using token
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
+
           git add -A
           git commit -m "Auto formatted with Black" || echo "No changes to commit"
-          git push
+
+          # Push back to the same branch
+          git push origin HEAD:${{ github.ref_name }}
 
       - name: Run Super-Linter
         uses: github/super-linter@v4
