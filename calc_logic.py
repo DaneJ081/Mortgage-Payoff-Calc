@@ -1,4 +1,3 @@
-
 def parse_amount(text):
     text = text.lower().replace(",", "").strip()
     if text.endswith("k"):
@@ -55,4 +54,3 @@ def pretty_duration(months: int):
         return f"{years} years"
     else:
         return f"{years} years {remaining_months} months"
-
