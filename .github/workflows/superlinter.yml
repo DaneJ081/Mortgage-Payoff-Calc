@@ -1,4 +1,6 @@
 name: Super-Linter
+permissions:
+  contents: Write
 
 on:
   push:
