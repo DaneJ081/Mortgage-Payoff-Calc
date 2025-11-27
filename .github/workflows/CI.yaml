@@ -1,4 +1,4 @@
-name: Super-Linter
+name: CI
 permissions:
   contents: write
 
@@ -10,7 +10,7 @@ on:
       - '**.md'
 
 jobs:
-  super-lint:
+  Run Black and Push Code:
     name: Lint code base
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
@@ -47,4 +47,7 @@ jobs:
 
           # Push back to the same branch
           git push origin HEAD:${{ github.ref_name }}
+
+
+        
 
