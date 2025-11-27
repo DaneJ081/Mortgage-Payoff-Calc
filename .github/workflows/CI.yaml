@@ -48,8 +48,3 @@ jobs:
           # Push back to the same branch
           git push origin HEAD:${{ github.ref_name }}
 
-      - name: Run Super-Linter
-        uses: github/super-linter@v4
-        env:
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
