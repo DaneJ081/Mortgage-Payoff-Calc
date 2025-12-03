@@ -1,15 +1,18 @@
 import matplotlib
-from calc_logic import parse_amount, do_math, pretty_duration
-from flask import Flask, render_template, request
-
 matplotlib.use("Agg")  # headless for Docker
 import matplotlib.pyplot as plt
+import io
+from flask import Flask, render_template, request, send_file
+from calc_logic import parse_amount, do_math, pretty_duration
 
 app = Flask(__name__)
 
+# Store the plot in-memory for the current calculation
+current_plot = None
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    global current_plot
     result = None
 
     if request.method == "POST":
@@ -22,6 +25,7 @@ def index():
             result = {"error": "Invalid input. Check your values."}
             return render_template("index.html", result=result)
 
+        # Calculate balances
         Bal, Mon = do_math(loan, rate, 0, term)
         Bal2, Mon2 = do_math(loan, rate, extra, term)
 
@@ -29,7 +33,8 @@ def index():
         payoff2 = pretty_duration(len(Mon2))
         saved = pretty_duration(len(Mon) - len(Mon2))
 
-        # Plot
+        # Generate plot in-memory
+        buf = io.BytesIO()
         plt.figure(figsize=(7, 4))
         plt.title("Loan Payoff Comparison")
         plt.xlabel("Months")
@@ -39,18 +44,26 @@ def index():
         plt.plot(Mon2, Bal2, label="With Extra")
         plt.legend()
         plt.tight_layout()
-        plt.savefig("static/plot.png")
+        plt.savefig(buf, format="png")
         plt.close()
+        buf.seek(0)
+        current_plot = buf  # store for the /plot route
 
         result = {
             "payoff1": payoff1,
             "payoff2": payoff2,
             "saved": saved,
-            "plot": "/static/plot.png",
+            "plot": "/plot.png",  # points to new route
         }
 
     return render_template("index.html", result=result)
 
+@app.route("/plot.png")
+def plot_png():
+    if current_plot is None:
+        return "No plot available", 404
+    # Return a copy of the BytesIO object
+    return send_file(io.BytesIO(current_plot.getvalue()), mimetype="image/png")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
