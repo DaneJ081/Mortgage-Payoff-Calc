@@ -26,8 +26,8 @@ def index():
             return render_template("index.html", result=result)
 
         # Calculate balances
-        Bal, Mon = do_math(loan, rate, 0, term)
-        Bal2, Mon2 = do_math(loan, rate, extra, term)
+        Bal, Mon, totalInterest = do_math(loan, rate, 0, term)
+        Bal2, Mon2, totalInterest2 = do_math(loan, rate, extra, term)
 
         payoff1 = pretty_duration(len(Mon))
         payoff2 = pretty_duration(len(Mon2))
@@ -52,6 +52,8 @@ def index():
         result = {
             "payoff1": payoff1,
             "payoff2": payoff2,
+            "totalInterest": totalInterest,
+            "totalInterest2": totalInterest2,
             "saved": saved,
             "plot": "/plot.png",  # points to new route
         }
@@ -66,4 +68,4 @@ def plot_png():
     return send_file(io.BytesIO(current_plot.getvalue()), mimetype="image/png")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
+    app.run(host="0.0.0.0", port=8001)

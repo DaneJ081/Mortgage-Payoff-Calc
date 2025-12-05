@@ -1,8 +1,11 @@
 name: Build and Publish Docker Image
 
 on:
-  release:
-  types: [publsihed] #Maybe on pushes to main branch
+  push:
+    branches-ignore:
+      - main
+    paths-ignore:
+      - '**.md'
 
   jobs:
   publish_to_registry:
