@@ -3,45 +3,96 @@ name: Trigger auto deployment for mortcal
 on:
   push:
     branches: 
-      [ main ]
-    paths:
-    - '**'
-    - '.github/workflows/deploy.yml'
+      [ "main" ]
+  release:
+    types: [published]     
+  workflow_dispatch: 
 
-  # Allow manual trigger 
-  workflow_dispatch:      
+env:
+  ACR_NAME: mortcal
+  IMAGE_NAME: mortcal
+  RESOURCE_GROUP: 120325_MortCal #After we begin provisioning via IAC there will be a Staging and Prod RG
+  ACA_ENV_STG: mortcal_stg_env
+  ACA_ENV_PROD: mortcal_prod_env
+  ACA_APP_STG: mortcal_stg
+  ACA_APP_PROD: mortcal_prod
 
 jobs:
-  build-and-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
-    permissions: 
-      id-token: write #This is required for requesting the OIDC JWT Token
-      contents: read #Required when GH token is used to authenticate with private repo
 
     steps:
       - name: Checkout to the branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Azure Login
         uses: azure/login@v2
-        with:
+        with: 
           client-id: ${{ secrets.MORTCAL_AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.MORTCAL_AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.MORTCAL_AZURE_SUBSCRIPTION_ID }}
 
-      - name: Build and push container image to registry
-        uses: azure/container-apps-deploy-action@v2
+      - name: ACR Docker Login
+        uses: azure/docker-login@v1
         with:
-          appSourcePath: ${{ github.workspace }}
-          _dockerfilePathKey_: _dockerfilePath_
-          _targetLabelKey_: _targetLabel_
-          registryUrl: 
-          registryUsername: ${{ secrets.MORTCAL_REGISTRY_USERNAME }}
-          registryPassword: ${{ secrets.MORTCAL_REGISTRY_PASSWORD }}
-          containerAppName: mortcal
-          resourceGroup: 120325_MortCal
-          imageToBuild: default/[parameters('containerAppName')]:${{ github.sha }}
-          _buildArgumentsKey_: |
-            _buildArgumentsValues_
+          login-server: ${{ env.ACR_NAME }}.azurecr.io
+          username: ${{ secrets.MORTCAL_AZURE_CLIENT_ID }}
+          password: ${{ secrets.MORTCAL_AZURE_CLIENT_SECRET }}
+      
+      - name: Build the staging Docker image
+        run: |
+          docker build -t $ACR_NAME.azurecr.io/$IMAGE_NAME:stg .
 
+      - name: Tag Prod image (only for release)
+        if: github.event_name == 'release'
+        run: |
+          docker tag \
+            $ACR_NAME.azurecr.io/$IMAGE_NAME:stg \
+            $ACR_NAME.azurecr.io/$IMAGE_NAME:prod
+        
+      - name: Push stg tag 
+        run: docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:stg
 
+      - name: PUSH prod tag (only for release)
+        if: github.event_name == 'release'
+        run: docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:prod
+
+  deploy-stg:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Login to Azure
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.MORTCAL_AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.MORTCAL_AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.MORTCAL_AZURE_SUBSCRIPTION_ID }}
+        
+    - name: Deploy to ACA (STG)
+      run: | 
+        az containerapp update \
+          --name $ACA_APP_STG \
+          --resource-group $RESOURCE_GROUP \
+          --image $ACR_NAME.azurecr.io/$IMAGE_NAME:stg
+    
+  deploy-prod:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+
+    steps:
+      - name: Azure Login
+        uses: azure/login@v2
+        with: 
+          client-id: ${{ secrets.MORTCAL_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.MORTCAL_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.MORTCAL_AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy to ACA (prod)
+        run: |
+          az containerapp update \
+            --name $ACA_APP_PROD \
+            --resource-group $RESOURCE_GROUP \
+            --image $ACR_NAME.azurecr.io/$IMAGE_NAME:prod
