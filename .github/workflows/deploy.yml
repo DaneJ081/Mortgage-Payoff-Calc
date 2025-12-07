@@ -7,22 +7,24 @@ on:
   release:
     types: [published]     
   workflow_dispatch: 
+    
+permissions:
+  id-token: write
+  contents: read
 
 env:
   ACR_NAME: mortcal
   IMAGE_NAME: mortcal
   RESOURCE_GROUP: 120325_MortCal #After we begin provisioning via IAC there will be a Staging and Prod RG
-  ACA_ENV_STG: mortcal_stg_env
-  ACA_ENV_PROD: mortcal_prod_env
-  ACA_APP_STG: mortcal_stg
-  ACA_APP_PROD: mortcal_prod
+  ACA_ENV_STG: mortcal-stg-env
+  ACA_ENV_PROD: managedEnvironment-120325MortCal-a394
+  ACA_APP_STG: mortcal-stg
+  ACA_APP_PROD: mortcal
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
+
 
     steps:
       - name: Checkout to the branch
