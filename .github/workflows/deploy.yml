@@ -1,14 +1,14 @@
 name: Trigger auto deployment for mortcal
 
-# When this action will be executed
 on:
-  # Automatically trigger it when detected changes in repo
   push:
     branches: 
       [ main ]
+    changes_ignore:
+    - '**.md'
     paths:
     - '**'
-    - '.github/workflows/mortcal-AutoDeployTrigger-7541eecd-7cab-43b7-8384-8af210f367b6.yml'
+    - '.github/workflows/deploy.yml'
 
   # Allow manual trigger 
   workflow_dispatch:      
