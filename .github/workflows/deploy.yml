@@ -8,9 +8,6 @@ on:
     types: [published]     
   workflow_dispatch: 
 
-permissions:
-  contents: read
-
 env:
   ACR_NAME: mortcal
   IMAGE_NAME: mortcal
@@ -33,10 +30,7 @@ jobs:
       - name: Azure Login
         uses: azure/login@v2
         with: 
-          client-id: ${{ secrets.MORTCAL_AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.MORTCAL_AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.MORTCAL_AZURE_SUBSCRIPTION_ID }}
-          client-secret: ${{ secrets.MORTCAL_AZURE_CLIENT_SECRET }}
+          creds: ${{ secrets.Azure_Credentials }}
 
       - name: ACR Docker Login
         run: az acr login --name $ACR_NAME
@@ -64,10 +58,7 @@ jobs:
     - name: Login to Azure
       uses: azure/login@v2
       with:
-        client-id: ${{ secrets.MORTCAL_AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.MORTCAL_AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.MORTCAL_AZURE_SUBSCRIPTION_ID }}
-        client-secret: ${{ secrets.MORTCAL_AZURE_CLIENT_SECRET }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
         
     - name: Deploy to ACA (STG)
       run: | 
@@ -86,10 +77,7 @@ jobs:
       - name: Azure Login
         uses: azure/login@v2
         with: 
-          client-id: ${{ secrets.MORTCAL_AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.MORTCAL_AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.MORTCAL_AZURE_SUBSCRIPTION_ID }}
-          client-secret: ${{ secrets.MORTCAL_AZURE_CLIENT_SECRET }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Deploy to ACA (prod)
         run: |
