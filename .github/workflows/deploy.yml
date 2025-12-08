@@ -7,9 +7,8 @@ on:
   release:
     types: [published]     
   workflow_dispatch: 
-    
+
 permissions:
-  id-token: write
   contents: read
 
 env:
@@ -23,6 +22,7 @@ env:
 
 jobs:
   build-and-push:
+    name: Build & Push Image to ACR
     runs-on: ubuntu-latest
 
 
@@ -36,6 +36,7 @@ jobs:
           client-id: ${{ secrets.MORTCAL_AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.MORTCAL_AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.MORTCAL_AZURE_SUBSCRIPTION_ID }}
+          client-secret: ${{ secrets.MORTCAL_AZURE_CLIENT_SECRET }}
 
       - name: ACR Docker Login
         run: az acr login --name $ACR_NAME
@@ -50,15 +51,11 @@ jobs:
           docker tag \
             $ACR_NAME.azurecr.io/$IMAGE_NAME:stg \
             $ACR_NAME.azurecr.io/$IMAGE_NAME:prod
-        
-      - name: Push stg tag 
-        run: docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:stg
-
-      - name: PUSH prod tag (only for release)
-        if: github.event_name == 'release'
-        run: docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:prod
+          
+          docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:prod
 
   deploy-stg:
+    name: Deploy STG to ACA
     needs: build-and-push
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -70,6 +67,7 @@ jobs:
         client-id: ${{ secrets.MORTCAL_AZURE_CLIENT_ID }}
         tenant-id: ${{ secrets.MORTCAL_AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.MORTCAL_AZURE_SUBSCRIPTION_ID }}
+        client-secret: ${{ secrets.MORTCAL_AZURE_CLIENT_SECRET }}
         
     - name: Deploy to ACA (STG)
       run: | 
@@ -79,6 +77,7 @@ jobs:
           --image $ACR_NAME.azurecr.io/$IMAGE_NAME:stg
     
   deploy-prod:
+    name: Deploy PROD to ACA
     needs: build-and-push
     runs-on: ubuntu-latest
     if: github.event_name == 'release'
@@ -90,6 +89,7 @@ jobs:
           client-id: ${{ secrets.MORTCAL_AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.MORTCAL_AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.MORTCAL_AZURE_SUBSCRIPTION_ID }}
+          client-secret: ${{ secrets.MORTCAL_AZURE_CLIENT_SECRET }}
 
       - name: Deploy to ACA (prod)
         run: |
