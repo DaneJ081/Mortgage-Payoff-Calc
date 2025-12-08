@@ -1,0 +1,6 @@
+venv/
+__pycache__/
+.git
+plot.png
+Todo.txt
+.github/
