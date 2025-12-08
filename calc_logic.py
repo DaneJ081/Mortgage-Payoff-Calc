@@ -18,6 +18,7 @@ def calculate_monthly_payment(principal, annual_rate, years):
 def do_math(loanAmount, interestRate, extraPayment, loanTermYears):
     Balances = []
     Months = []
+    totalInterest = 0
 
     Balance = loanAmount
     monthlyInterestRate = interestRate / 1200
@@ -39,11 +40,12 @@ def do_math(loanAmount, interestRate, extraPayment, loanTermYears):
 
         Balances.append(Balance)
         Months.append(month)
+        totalInterest += interest
 
         Balance -= principal
         month += 1
 
-    return Balances, Months
+    return Balances, Months, round(totalInterest/1000)
 
 
 def pretty_duration(months: int):

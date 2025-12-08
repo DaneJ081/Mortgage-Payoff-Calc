@@ -1,0 +1,87 @@
+name: Trigger auto deployment for mortcal
+
+on:
+  push:
+    branches: 
+      [ "main" ]
+  release:
+    types: [published]     
+  workflow_dispatch: 
+
+env:
+  ACR_NAME: mortcal
+  IMAGE_NAME: mortcal
+  RESOURCE_GROUP: 120325_MortCal #After we begin provisioning via IAC there will be a Staging and Prod RG
+  ACA_ENV_STG: mortcal-stg-env
+  ACA_ENV_PROD: managedEnvironment-120325MortCal-a394
+  ACA_APP_STG: mortcal-stg
+  ACA_APP_PROD: mortcal
+
+jobs:
+  build-and-push:
+    name: Build & Push Image to ACR
+    runs-on: ubuntu-latest
+
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with: 
+          creds: ${{ secrets.Azure_Credentials }}
+
+      - name: ACR Docker Login
+        run: az acr login --name $ACR_NAME
+      
+      - name: Build the staging Docker image
+        run: |
+          docker build -t $ACR_NAME.azurecr.io/$IMAGE_NAME:stg .
+
+      - name: Tag Prod image (only for release)
+        if: github.event_name == 'release'
+        run: |
+          docker tag \
+            $ACR_NAME.azurecr.io/$IMAGE_NAME:stg \
+            $ACR_NAME.azurecr.io/$IMAGE_NAME:prod
+          
+          docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:prod
+
+  deploy-stg:
+    name: Deploy STG to ACA
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Login to Azure
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
+    - name: Deploy to ACA (STG)
+      run: | 
+        az containerapp update \
+          --name $ACA_APP_STG \
+          --resource-group $RESOURCE_GROUP \
+          --image $ACR_NAME.azurecr.io/$IMAGE_NAME:stg
+    
+  deploy-prod:
+    name: Deploy PROD to ACA
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+
+    steps:
+      - name: Azure Login
+        uses: azure/login@v2
+        with: 
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to ACA (prod)
+        run: |
+          az containerapp update \
+            --name $ACA_APP_PROD \
+            --resource-group $RESOURCE_GROUP \
+            --image $ACR_NAME.azurecr.io/$IMAGE_NAME:prod

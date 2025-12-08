@@ -26,9 +26,10 @@ def index():
             return render_template("index.html", result=result)
 
         # Calculate balances
-        Bal, Mon = do_math(loan, rate, 0, term)
-        Bal2, Mon2 = do_math(loan, rate, extra, term)
+        Bal, Mon, totalInterest = do_math(loan, rate, 0, term)
+        Bal2, Mon2, totalInterest2 = do_math(loan, rate, extra, term)
 
+        interestDifference = totalInterest - totalInterest2
         payoff1 = pretty_duration(len(Mon))
         payoff2 = pretty_duration(len(Mon2))
         saved = pretty_duration(len(Mon) - len(Mon2))
@@ -52,6 +53,9 @@ def index():
         result = {
             "payoff1": payoff1,
             "payoff2": payoff2,
+            "totalInterest": totalInterest,
+            "totalInterest2": totalInterest2,
+            "interestDifference": interestDifference,
             "saved": saved,
             "plot": "/plot.png",  # points to new route
         }

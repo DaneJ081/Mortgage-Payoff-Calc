@@ -52,9 +52,9 @@
     {% if result.error %}
         <p style="color: red;">{{ result.error }}</p>
     {% else %}
-        <p><b>Payoff WITHOUT extra:</b> {{ result.payoff1 }}</p>
-        <p><b>Payoff WITH extra:</b> {{ result.payoff2 }}</p>
-        <p><b>Time Saved:</b> {{ result.saved }}</p>
+        <p><b>Payoff WITHOUT extra:</b> {{ result.payoff1 }} and ${{ result.totalInterest }}K in interest paid.</p>
+        <p><b>Payoff WITH extra:</b> {{ result.payoff2 }} and ${{ result.totalInterest2 }}K in interest paid.</p>
+        <p><b>Total saved :</b> {{ result.saved }} and ${{ result.interestDifference }}k in interest. </p>
 
         <h3>Payoff Chart</h3>
         <img src="{{ result.plot }}" width="100%" alt = "Amortization plot">
