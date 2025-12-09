@@ -38,14 +38,12 @@ jobs:
       - name: Build the staging Docker image
         run: |
           docker build -t $ACR_NAME.azurecr.io/$IMAGE_NAME:stg .
+          docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:stg
 
       - name: Tag Prod image (only for release)
         if: github.event_name == 'release'
         run: |
-          docker tag \
-            $ACR_NAME.azurecr.io/$IMAGE_NAME:stg \
-            $ACR_NAME.azurecr.io/$IMAGE_NAME:prod
-          
+          docker tag $ACR_NAME.azurecr.io/$IMAGE_NAME:prod
           docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:prod
 
   deploy-stg:
