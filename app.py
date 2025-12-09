@@ -34,21 +34,27 @@ def index():
         payoff2 = pretty_duration(len(Mon2))
         saved = pretty_duration(len(Mon) - len(Mon2))
 
-        # Generate plot in-memory
+        # Generate plot in-memory (dark mode)
         buf = io.BytesIO()
+        plt.style.use("dark_background")
         plt.figure(figsize=(7, 4))
-        plt.title("Loan Payoff Comparison")
-        plt.xlabel("Months")
-        plt.ylabel("Remaining Balance ($)")
-        plt.grid(True)
+
+        plt.title("Loan Payoff Comparison", color="white")
+        plt.xlabel("Months", color="white")
+        plt.ylabel("Remaining Balance ($)", color="white")
+
+        plt.grid(True, color="#555")  # softer gray grid
+
         plt.plot(Mon, Bal, label="Minimum Payments")
         plt.plot(Mon2, Bal2, label="With Extra")
-        plt.legend()
+
+        plt.legend(facecolor="#222", edgecolor="#444", labelcolor="white")
+
         plt.tight_layout()
-        plt.savefig(buf, format="png")
+        plt.savefig(buf, format="png", dpi=120)
         plt.close()
         buf.seek(0)
-        current_plot = buf  # store for the /plot route
+        current_plot = buf
 
         result = {
             "payoff1": payoff1,
