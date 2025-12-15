@@ -1,6 +1,11 @@
 name: Trigger auto deployment for mortcal
 
-on:   
+on:
+  push:
+    branches: 
+      [ "main" ]
+  release:
+    types: [published]     
   workflow_dispatch: 
 
 env:
