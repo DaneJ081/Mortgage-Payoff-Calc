@@ -3,7 +3,7 @@ name: Trigger auto deployment for mortcal
 on:
   push:
     branches: 
-      [ "main" ]
+      [ "dev" ]
   release:
     types: [published]     
   workflow_dispatch: 
