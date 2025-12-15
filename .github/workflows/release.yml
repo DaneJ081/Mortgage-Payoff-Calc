@@ -10,9 +10,9 @@ on:
 
 env:
   IMAGE_NAME: mortcal
-  RG_STG: mortcal-stg-rg
-  ACA_ENV_STG: mortcal-stg-env
-  ACA_APP_STG: mortcal-stg
+  RG_STG: mortcal-rg-stg
+  ACA_ENV_STG: mortcal-caenv-stg
+  ACA_APP_STG: mortcal-ca-stg
   RG_Prod: mortcal-prod-rg
   ACA_ENV_PROD: managedEnvironment-120325MortCal-a394
   ACA_APP_PROD: mortcal
