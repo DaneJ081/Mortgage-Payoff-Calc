@@ -43,7 +43,7 @@ jobs:
         docker pull tiggy081/$IMAGE_NAME:latest
 
   deploy-stg:
-    name: Deploy to STG  ACA
+    name: Deploy to STG ACA
     needs: pull_from_registry
     runs-on: ubuntu-latest
     
@@ -59,6 +59,9 @@ jobs:
           --name $ACA_APP_STG \
           --resource-group $RG_STG \
           --image tiggy081/$IMAGE_NAME:latest
+          --server docker.io \
+          --username <DOCKER_USERNAME> \
+          --password <DOCKER_PASSWORD>
     
   deploy-prod:
     name: Deploy PROD to ACA
