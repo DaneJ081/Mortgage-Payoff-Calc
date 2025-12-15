@@ -57,7 +57,7 @@ jobs:
       run: | 
         az containerapp update \
           --name $ACA_APP_STG \
-          --resource-group $RESOURCE_GROUP \
+          --resource-group $RG_STG \
           --image tiggy081/$IMAGE_NAME:latest
     
   deploy-prod:
