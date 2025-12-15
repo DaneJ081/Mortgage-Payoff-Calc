@@ -21,7 +21,7 @@ resource "azurerm_container_app_environment" "cae" {
 
 resource "azurerm_container_app" "ca" {
   name                         = "${var.prefix}-containerapp-${var.env}"
-  container_app_environment_id = "azurerm_container_app_environment.cae-${var.env}.id"
+  container_app_environment_id = azurerm_container_app_environment.cae.id
   resource_group_name          = azurerm_resource_group.rg.name
   revision_mode                = "Single"
 
