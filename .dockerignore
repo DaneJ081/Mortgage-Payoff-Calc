@@ -4,3 +4,5 @@ __pycache__/
 plot.png
 Todo.txt
 .github/
+*terraform*
+.terraform.*

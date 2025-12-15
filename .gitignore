@@ -2,3 +2,5 @@ venv/*
 plot.png
 __pycache__/*
 Todo.txt
+*terraform*
+.terraform.*
