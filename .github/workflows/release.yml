@@ -10,7 +10,7 @@ env:
   IMAGE_NAME: mortcal
   RG_STG: mortcal-rg-stg
   ACA_APP_STG: mortcal-ca-stg
-  RG_Prod: mortcal-prod-rg
+  RG_Prod: mortcal-rg-prod
   ACA_APP_PROD: mortcal-ca-prod
 
 jobs:
