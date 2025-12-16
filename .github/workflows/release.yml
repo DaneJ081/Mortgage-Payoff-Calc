@@ -1,4 +1,4 @@
-name: Trigger auto deployment for mortcal
+name: Deploy Container Image
 
 on:
   push:
@@ -9,9 +9,9 @@ on:
 env:
   IMAGE_NAME: mortcal
   RG_STG: mortcal-rg-stg
-  ACA_APP_STG: mortcal-ca-stg
-  RG_Prod: mortcal-prod-rg
-  ACA_APP_PROD: mortcal-ca-prod
+  ACA_APP_STG: mortcal-containterapp-stg
+  RG_Prod: mortcal-rg-prod
+  ACA_APP_PROD: mortcal-containerapp-prod
 
 jobs:
   pull_from_registry:

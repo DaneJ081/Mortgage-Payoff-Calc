@@ -1,5 +1,5 @@
 ---
-name: Auto Build
+name: Build Container and Upload to Dockerhub
 
 on:
   push:
