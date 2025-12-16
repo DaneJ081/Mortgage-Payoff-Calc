@@ -1,10 +1,10 @@
-name: Deploy Container Image
+---
+name: Release Docker Image
 
-on:
-  push:
-    branches: 
-      [ "main" ] 
-  workflow_dispatch: 
+"on":
+  workflow_dispatch:
+  release:
+    types: [published]
 
 env:
   IMAGE_NAME: mortcal
@@ -14,62 +14,58 @@ env:
   ACA_APP_PROD: mortcal-containerapp-prod
 
 jobs:
-  pull_from_registry:
-    name: Pull Docker image from Docker Hub
-    runs-on: ubuntu-latest
-    permissions:
-      packages: read
-      contents: read
-      attestations: read
-      id-token: write
-      
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v5
-
-    - name: Docker Hub Login
-      uses: docker/login-action@v2
-      with: 
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-    
-
-    - name: Pull the Docker image
-      run: |
-        docker pull tiggy081/$IMAGE_NAME:latest
-
   deploy-stg:
     name: Deploy to STG ACA
-    needs: pull_from_registry
     runs-on: ubuntu-latest
-    
     steps:
-    - name: Login to Azure
-      uses: azure/login@v2
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-        
-    - name: Deploy to ACA (STG)
-      run: | 
-        az containerapp update \
-          --name $ACA_APP_STG \
-          --resource-group $RG_STG \
-          --image tiggy081/$IMAGE_NAME:latest
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Download Image Tag
+        uses: actions/download-artifact@v4
+        with:
+          name: image-tag
+
+      - name: Set IMAGE_TAG
+        run: echo "IMAGE_TAG=$(cat image-tag.txt)" >> $GITHUB_ENV
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to ACA (STG)
+        run: |
+          az containerapp update \
+            --name $ACA_APP_STG \
+            --resource-group $RG_STG \
+            --image tiggy081/$IMAGE_NAME:$IMAGE_TAG
 
   deploy-prod:
     name: Deploy to PROD ACA
-    needs: deploy-stg
     runs-on: ubuntu-latest
-    environment: 'prod'
+    needs: deploy-stg
+    environment: prod  # GitHub will enforce manual approval
     steps:
-      - name: Azure Login
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Download Image Tag
+        uses: actions/download-artifact@v4
+        with:
+          name: image-tag
+
+      - name: Set IMAGE_TAG
+        run: echo "IMAGE_TAG=$(cat image-tag.txt)" >> $GITHUB_ENV
+
+      - name: Login to Azure
         uses: azure/login@v2
-        with: 
+        with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy to ACA (prod)
+      - name: Deploy to ACA (PROD)
         run: |
           az containerapp update \
             --name $ACA_APP_PROD \
             --resource-group $RG_PROD \
-            --image tiggy081/$IMAGE_NAME:latest
+            --image tiggy081/$IMAGE_NAME:$IMAGE_TAG
