@@ -1,15 +1,11 @@
-variable "prefix"{
-    default = "mortcal"
+variable "env" {
+  type = string
 }
 
-variable "resourceGroup"{
-    default = "mortcal-rg"
+variable "prefix" {
+  type = string
 }
 
-variable "location"{
-    default = "east us 2"
-}
-
-variable "env"{
-    default = "stg"
+variable "location" {
+  type = string
 }

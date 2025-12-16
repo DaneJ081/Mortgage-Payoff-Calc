@@ -40,6 +40,6 @@ Python
 Flask
 Matplotlib
 Docker
-Azure Container Registry
+DockerHub
 Azure Container Apps
-GitHub Actions (CI/CD)
+GitHub Actions
