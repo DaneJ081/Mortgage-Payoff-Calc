@@ -17,6 +17,8 @@ env:
   ACA_APP_STG: mortcal-containerapp-stg
   RG_PROD: mortcal-rg-prod
   ACA_APP_PROD: mortcal-containerapp-prod
+  IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+
 
 jobs:
   deploy-stg:
@@ -25,15 +27,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
-
-      - name: Download Image Tag
-        uses: actions/download-artifact@v4
-        with:
-          name: image-tag
-          run-id: ${{ github.event.workflow_run.id }}
-
-      - name: Set IMAGE_TAG
-        run: echo "IMAGE_TAG=$(cat image-tag.txt)" >> $GITHUB_ENV
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -55,14 +48,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
-
-      - name: Download Image Tag
-        uses: actions/download-artifact@v4
-        with:
-          name: image-tag
-
-      - name: Set IMAGE_TAG
-        run: echo "IMAGE_TAG=$(cat image-tag.txt)" >> $GITHUB_ENV
 
       - name: Login to Azure
         uses: azure/login@v2
