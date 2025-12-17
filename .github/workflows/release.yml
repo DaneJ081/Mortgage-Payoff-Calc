@@ -15,6 +15,8 @@ env:
   ACA_APP_STG: mortcal-containerapp-stg
   RG_PROD: mortcal-rg-prod
   ACA_APP_PROD: mortcal-containerapp-prod
+  IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+
 
 jobs:
   deploy-stg:
@@ -45,7 +47,7 @@ jobs:
           az containerapp update \
             --name $ACA_APP_STG \
             --resource-group $RG_STG \
-            --image tiggy081/$IMAGE_NAME:$IMAGE_TAG
+            --image tiggy081/$IMAGE_NAME:${IMAGE_TAG::7}
 
   deploy-prod:
     name: Deploy to PROD ACA
