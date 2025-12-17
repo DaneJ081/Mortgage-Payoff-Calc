@@ -45,7 +45,7 @@ def do_math(loanAmount, interestRate, extraPayment, loanTermYears):
         Balance -= principal
         month += 1
 
-    return Balances, Months, round(totalInterest/1000)
+    return Balances, Months, round(totalInterest / 1000)
 
 
 def pretty_duration(months: int):

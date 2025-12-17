@@ -1,4 +1,3 @@
----
 name: Release Docker Image
 
 on:
@@ -6,8 +5,7 @@ on:
   release:
     types: [published]
   workflow_run:
-    workflows:
-      - Build Docker Image
+    workflows: ["Build Docker Image"]
     types:
       - completed
 
@@ -17,23 +15,25 @@ env:
   ACA_APP_STG: mortcal-containerapp-stg
   RG_PROD: mortcal-rg-prod
   ACA_APP_PROD: mortcal-containerapp-prod
-  IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
-
-
 
 jobs:
-
-
   deploy-stg:
     name: Deploy to STG ACA
     runs-on: ubuntu-latest
     steps:
-
-      - name: Debug image tag
-        run: echo "IMAGE_TAG=$IMAGE_TAG"
-
       - name: Checkout repository
         uses: actions/checkout@v5
+
+      - name: Download image tag artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: image-tag
+
+      - name: Set IMAGE_TAG
+        run: |
+          IMAGE_TAG=$(cat image-tag.txt)
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          echo "Using IMAGE_TAG=$IMAGE_TAG"
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -51,10 +51,20 @@ jobs:
     name: Deploy to PROD ACA
     runs-on: ubuntu-latest
     needs: deploy-stg
-    environment: prod  # GitHub will enforce manual approval
+    environment: prod
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+
+      - name: Download image tag artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: image-tag
+
+      - name: Set IMAGE_TAG
+        run: |
+          IMAGE_TAG=$(cat image-tag.txt)
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
       - name: Login to Azure
         uses: azure/login@v2

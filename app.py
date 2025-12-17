@@ -1,4 +1,5 @@
 import matplotlib
+
 matplotlib.use("Agg")  # headless for Docker
 import matplotlib.pyplot as plt
 import io
@@ -9,6 +10,7 @@ app = Flask(__name__)
 
 # Store the plot in-memory for the current calculation
 current_plot = None
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -68,12 +70,14 @@ def index():
 
     return render_template("index.html", result=result)
 
+
 @app.route("/plot.png")
 def plot_png():
     if current_plot is None:
         return "No plot available", 404
     # Return a copy of the BytesIO object
     return send_file(io.BytesIO(current_plot.getvalue()), mimetype="image/png")
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
