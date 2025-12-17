@@ -20,11 +20,18 @@ env:
   IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
 
 
+
 jobs:
+
+
   deploy-stg:
     name: Deploy to STG ACA
     runs-on: ubuntu-latest
     steps:
+
+      - name: Debug image tag
+        run: echo "IMAGE_TAG=$IMAGE_TAG"
+
       - name: Checkout repository
         uses: actions/checkout@v5
 
@@ -38,7 +45,7 @@ jobs:
           az containerapp update \
             --name $ACA_APP_STG \
             --resource-group $RG_STG \
-            --image tiggy081/$IMAGE_NAME:${IMAGE_TAG::7}
+            --image tiggy081/$IMAGE_NAME:$IMAGE_TAG
 
   deploy-prod:
     name: Deploy to PROD ACA
@@ -59,4 +66,4 @@ jobs:
           az containerapp update \
             --name $ACA_APP_PROD \
             --resource-group $RG_PROD \
-            --image tiggy081/$IMAGE_NAME:${IMAGE_TAG::7}
+            --image tiggy081/$IMAGE_NAME:$IMAGE_TAG
