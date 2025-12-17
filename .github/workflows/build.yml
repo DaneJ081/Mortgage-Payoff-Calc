@@ -27,7 +27,7 @@ jobs:
 
       - name: Create SHA Tag
         id: create_sha
-        run: echo "tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+        run: echo "tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT ; echo $GITHUB_OUTPUT >> image-tag.txt
 
       - name: Build & Push Docker Image
         run: |
