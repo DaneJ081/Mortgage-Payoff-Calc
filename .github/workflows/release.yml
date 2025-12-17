@@ -1,10 +1,15 @@
 ---
 name: Release Docker Image
 
-"on":
+on:
   workflow_dispatch:
   release:
     types: [published]
+  workflow_run:
+    workflows:
+      - Build Docker Image
+    types:
+      - completed
 
 env:
   IMAGE_NAME: mortcal
@@ -25,6 +30,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: image-tag
+          run-id: ${{ github.event.workflow_run.id }}
 
       - name: Set IMAGE_TAG
         run: echo "IMAGE_TAG=$(cat image-tag.txt)" >> $GITHUB_ENV
