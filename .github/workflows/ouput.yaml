@@ -1,0 +1,13 @@
+on:
+    workflow_dispatch:
+description: "Use docker tag"
+
+jobs:
+  build:
+    uses: ./.github/workflows/input.yml
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Deploying ${{ needs.build.outputs.image_tag }}"
