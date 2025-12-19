@@ -1,13 +1,9 @@
-name: Release Docker Image
+name: Build and Deploy
 
 on:
+  push:
+    branches: ["*"]
   workflow_dispatch:
-  release:
-    types: [published]
-  workflow_run:
-    workflows: ["Build Docker Image"]
-    types:
-      - completed
 
 env:
   IMAGE_NAME: mortcal
@@ -15,67 +11,89 @@ env:
   ACA_APP_STG: mortcal-containerapp-stg
   RG_PROD: mortcal-rg-prod
   ACA_APP_PROD: mortcal-containerapp-prod
-  IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  deploy-stg:
-    name: Deploy to STG ACA
+  # --------------------
+  # TESTS (every push)
+  # --------------------
+  test:
+    name: Run tests
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+      - run: echo "Run tests here"
 
-      - name: Download image tag artifact
-        uses: actions/download-artifact@v4
+  # --------------------
+  # BUILD (main only)
+  # --------------------
+  build:
+    name: Build & Push Docker Image
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    outputs:
+      image_tag: ${{ steps.sha.outputs.tag }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - id: sha
+        run: echo "tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+      - uses: docker/login-action@v2
         with:
-          name: image-tag
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Set IMAGE_TAG
-        run: |
-          IMAGE_TAG=$(cat image-tag.txt)
-          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-          echo "Using IMAGE_TAG=$IMAGE_TAG"
+      - run: |
+          docker build -t tiggy081/$IMAGE_NAME:${{ steps.sha.outputs.tag }} .
+          docker push tiggy081/$IMAGE_NAME:${{ steps.sha.outputs.tag }}
 
-      - name: Login to Azure
-        uses: azure/login@v2
+  # --------------------
+  # DEPLOY STG
+  # --------------------
+  deploy-stg:
+    name: Deploy to STG
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy to ACA (STG)
-        run: |
+      - run: |
           az containerapp update \
             --name $ACA_APP_STG \
             --resource-group $RG_STG \
-            --image tiggy081/$IMAGE_NAME:${IMAGE_TAG::7}
+            --image tiggy081/$IMAGE_NAME:${{ needs.build.outputs.image_tag }}
 
+  # --------------------
+  # DEPLOY PROD (manual approval)
+  # --------------------
   deploy-prod:
-    name: Deploy to PROD ACA
-    runs-on: ubuntu-latest
+    name: Deploy to PROD
     needs: deploy-stg
+    runs-on: ubuntu-latest
     environment: prod
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
-      - name: Download image tag artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: image-tag
-
-      - name: Set IMAGE_TAG
-        run: |
-          IMAGE_TAG=$(cat image-tag.txt)
-          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-
-      - name: Login to Azure
-        uses: azure/login@v2
+      - uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy to ACA (PROD)
-        run: |
+      - run: |
           az containerapp update \
             --name $ACA_APP_PROD \
             --resource-group $RG_PROD \
-            --image tiggy081/$IMAGE_NAME:$IMAGE_TAG
+            --image tiggy081/$IMAGE_NAME:${{ needs.build.outputs.image_tag }}
