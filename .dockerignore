@@ -6,3 +6,6 @@ Todo.txt
 .github/
 *terraform*
 .terraform.*
+.secrets
+.env
+*.secrets
