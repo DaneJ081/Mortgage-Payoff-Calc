@@ -34,7 +34,6 @@ jobs:
     name: Build & Push Docker Image
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
 
     outputs:
       image_tag: ${{ steps.sha.outputs.tag }}
@@ -61,7 +60,7 @@ jobs:
     name: Deploy to STG
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+
 
     steps:
       - uses: actions/checkout@v5
