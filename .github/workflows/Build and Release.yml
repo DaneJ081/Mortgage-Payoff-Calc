@@ -18,6 +18,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  installdependenciesfortesting:
+    name: Install dependencies needed for testing and linting
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          pip install black
   # --------------------
   # TESTS (every push)
   # --------------------
@@ -27,6 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: |
+          black --version
           black check .
           black format .
           isort .
