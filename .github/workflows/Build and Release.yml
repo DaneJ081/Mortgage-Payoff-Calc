@@ -28,10 +28,11 @@ jobs:
       - uses: actions/checkout@v5
       - run: |
           pip install black
-          black --version
-          black check .
+          black --check .
           black format .
+          pip install isort .
           isort .
+          pip install yamllint
           yamllint ./.github/workflows/*
 
 
