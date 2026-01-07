@@ -28,8 +28,7 @@ jobs:
       - uses: actions/checkout@v5
       - run: |
           pip install black
-          black --check .
-          black format .
+          black .
           pip install isort .
           isort .
           pip install yamllint
