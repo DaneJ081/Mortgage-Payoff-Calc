@@ -1,10 +1,12 @@
 import matplotlib
 
 matplotlib.use("Agg")  # headless for Docker
-import matplotlib.pyplot as plt
 import io
+
+import matplotlib.pyplot as plt
 from flask import Flask, render_template, request, send_file
-from calc_logic import parse_amount, do_math, pretty_duration
+
+from calc_logic import do_math, parse_amount, pretty_duration
 
 app = Flask(__name__)
 

@@ -9,3 +9,4 @@ Todo.txt
 .secrets
 .env
 *.secrets
+.*_cache/*

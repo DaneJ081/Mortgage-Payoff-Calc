@@ -26,7 +26,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - run: echo "Run tests here"
+      - run: |
+          black check .
+          black format .
+          isort .
+          yamllint ./.github/workflows/*
+
 
 
   build:
