@@ -23,13 +23,15 @@ def index():
             rate = float(request.form["rate"])
             term = int(request.form["term"])
             extra = float(request.form["extra"])
+            tax = float(request.form["tax"])
+            insurance = float(request.form["insurance"])
         except Exception:
             result = {"error": "Invalid input. Check your values."}
             return render_template("index.html", result=result)
 
         # Calculate balances
-        Bal, Mon, totalInterest = do_math(loan, rate, 0, term)
-        Bal2, Mon2, totalInterest2 = do_math(loan, rate, extra, term)
+        Bal, Mon, totalInterest,monthlyPayment = do_math(loan, rate, 0, term, tax, insurance)
+        Bal2, Mon2, totalInterest2,monthlyPayment = do_math(loan, rate, extra, term, tax, insurance)
 
         interestDifference = totalInterest - totalInterest2
         payoff1 = pretty_duration(len(Mon))
@@ -59,6 +61,8 @@ def index():
         current_plot = buf
 
         result = {
+            "monthlyPayment": round(monthlyPayment),
+            "extra": round(extra),
             "payoff1": payoff1,
             "payoff2": payoff2,
             "totalInterest": totalInterest,

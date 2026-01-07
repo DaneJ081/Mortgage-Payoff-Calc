@@ -62,11 +62,11 @@
 </head>
 <body>
 
-<h2>Mortgage Payoff Calculator 12/19</h2>
+<h2>Mortgage Payoff Calculator 1/6</h2>
 
 <form method="POST">
     <label>Mortgage Amount</label>
-    <input type="text" name="loan" value="250k">
+    <input type="text" name="loan" value="250000">
 
     <label>Interest Rate (%)</label>
     <input type="text" name="rate" value="7">
@@ -77,6 +77,12 @@
     <label>Extra Monthly Payment ($)</label>
     <input type="text" name="extra" value="100">
 
+    <label>Annual Property Tax ($)</label>
+    <input type="text" name="tax" value="2500">
+
+    <label>Annual Insurance Premium ($)</label>
+    <input type="text" name="insurance" value="1500">
+
     <button type="submit">Calculate</button>
 </form>
 
@@ -85,9 +91,11 @@
     {% if result.error %}
         <p style="color: red;">{{ result.error }}</p>
     {% else %}
+        <p><b>Base Monthly Payment:</b> ${{ result.monthlyPayment }}</p>
+        <p><b>Monthly Payment with Extra:</b> ${{ result.monthlyPayment + result.extra }}</p>
         <p><b>Payoff WITHOUT extra:</b> {{ result.payoff1 }} and ${{ result.totalInterest }}K in interest paid.</p>
         <p><b>Payoff WITH extra:</b> {{ result.payoff2 }} and ${{ result.totalInterest2 }}K in interest paid.</p>
-        <p><b>Total saved :</b> {{ result.saved }} and ${{ result.interestDifference }}k in interest. </p>
+        <p><b>Total saved :</b> {{ result.saved }} and ${{ result.interestDifference }}k in interest.</p>
 
         <h3>Payoff Chart</h3>
         <img src="{{ result.plot }}" width="100%" alt = "Amortization plot">

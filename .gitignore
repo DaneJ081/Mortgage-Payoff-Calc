@@ -8,3 +8,4 @@ Todo.txt
 .secrets
 .env
 *.secrets
+.ruff_cache/*
