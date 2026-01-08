@@ -14,15 +14,12 @@ repos:
     rev: 25.12.0
     hooks:
       - id: black
-        args: ["--no-cache"]
         language_version: python3.12
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.2.1
     hooks:
       - id: ruff
-        args: ["--fix"]
-      - id: ruff-format
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.8.0
