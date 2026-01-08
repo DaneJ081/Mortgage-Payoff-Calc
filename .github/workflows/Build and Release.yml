@@ -1,8 +1,10 @@
+---
 name: Build and Deploy
 
 on:
   push:
-    branches: ["*"]
+    branches:
+      - main
   workflow_dispatch:
 
 env:
@@ -12,7 +14,6 @@ env:
   RG_PROD: mortcal-rg-prod
   ACA_APP_PROD: mortcal-containerapp-prod
 
-  #I Don't know what this does.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -22,18 +23,22 @@ jobs:
   # TESTS (every push)
   # --------------------
   test:
-    name: Run tests
+    name: Run pre-commit checks
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v5
-      - run: |
-          pip install black
-          black .
-          pip install isort .
-          isort .
-          pip install yamllint
-          yamllint ./.github/workflows/*
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      - name: Run pre-commit (all files)
+        run: pre-commit run --all-files
 
 
   build:
@@ -86,7 +91,7 @@ jobs:
   # --------------------
   deploy-prod:
     name: Deploy to PROD
-    needs: [deploy-stg,build]
+    needs: [deploy-stg, build]
     runs-on: ubuntu-latest
     environment: prod
 
