@@ -34,11 +34,11 @@ resource "azurerm_container_app" "ca" {
     }
   }
   ingress {
-    target_port = 8000
+    target_port      = 8000
     external_enabled = true
     traffic_weight {
-    percentage = 100
-    latest_revision = true
+      percentage      = 100
+      latest_revision = true
     }
   }
 }
