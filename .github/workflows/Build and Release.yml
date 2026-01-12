@@ -13,7 +13,6 @@ env:
   RG_PROD: mortcal-rg-prod
   ACA_APP_PROD: mortcal-containerapp-prod
 
-  #I Don't know what this does.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -23,11 +22,27 @@ jobs:
   # TESTS (every push)
   # --------------------
   test:
-    name: Run tests
+    name: Run pre-commit checks
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v5
-      - run: echo "Run tests here"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.14.3
+
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      - name: Run pre-commit (all files)
+        run: pre-commit run --all-files
 
 
   build:
