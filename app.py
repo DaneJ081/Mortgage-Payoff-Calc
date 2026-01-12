@@ -1,10 +1,12 @@
 import matplotlib
 
 matplotlib.use("Agg")  # headless for Docker
-import matplotlib.pyplot as plt
 import io
+
+import matplotlib.pyplot as plt
 from flask import Flask, render_template, request, send_file
-from calc_logic import parse_amount, do_math, pretty_duration
+
+from calc_logic import do_math, parse_amount, pretty_duration
 
 app = Flask(__name__)
 
@@ -23,13 +25,19 @@ def index():
             rate = float(request.form["rate"])
             term = int(request.form["term"])
             extra = float(request.form["extra"])
+            tax = float(request.form["tax"])
+            insurance = float(request.form["insurance"])
         except Exception:
             result = {"error": "Invalid input. Check your values."}
             return render_template("index.html", result=result)
 
         # Calculate balances
-        Bal, Mon, totalInterest = do_math(loan, rate, 0, term)
-        Bal2, Mon2, totalInterest2 = do_math(loan, rate, extra, term)
+        Bal, Mon, totalInterest, monthlyPayment = do_math(
+            loan, rate, 0, term, tax, insurance
+        )
+        Bal2, Mon2, totalInterest2, monthlyPayment = do_math(
+            loan, rate, extra, term, tax, insurance
+        )
 
         interestDifference = totalInterest - totalInterest2
         payoff1 = pretty_duration(len(Mon))
@@ -59,6 +67,8 @@ def index():
         current_plot = buf
 
         result = {
+            "monthlyPayment": round(monthlyPayment),
+            "extra": round(extra),
             "payoff1": payoff1,
             "payoff2": payoff2,
             "totalInterest": totalInterest,
@@ -80,4 +90,4 @@ def plot_png():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
+    app.run(host="0.0.0.0", port=8000)  # nosec B104

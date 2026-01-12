@@ -7,22 +7,24 @@ def parse_amount(text):
     return float(text)
 
 
-def calculate_monthly_payment(principal, annual_rate, years):
+def calculate_monthly_payment(principal, annual_rate, years, tax, insurance):
     r = annual_rate / 1200
     n = years * 12
     if r == 0:
-        return principal / n
+        return (principal / n) + (tax / 12) + (insurance / 12)
     return (r * principal) / (1 - (1 + r) ** (-n))
 
 
-def do_math(loanAmount, interestRate, extraPayment, loanTermYears):
+def do_math(loanAmount, interestRate, extraPayment, loanTermYears, tax, insurance):
     Balances = []
     Months = []
     totalInterest = 0
 
     Balance = loanAmount
     monthlyInterestRate = interestRate / 1200
-    monthlyPayment = calculate_monthly_payment(loanAmount, interestRate, loanTermYears)
+    monthlyPayment = calculate_monthly_payment(
+        loanAmount, interestRate, loanTermYears, tax, insurance
+    )
     totalPayment = monthlyPayment + extraPayment
 
     month = 0
@@ -45,7 +47,12 @@ def do_math(loanAmount, interestRate, extraPayment, loanTermYears):
         Balance -= principal
         month += 1
 
-    return Balances, Months, round(totalInterest / 1000)
+    return (
+        Balances,
+        Months,
+        round(totalInterest / 1000),
+        monthlyPayment + tax / 12 + insurance / 12,
+    )
 
 
 def pretty_duration(months: int):
