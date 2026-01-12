@@ -48,6 +48,7 @@ jobs:
   build:
     name: Build & Push Docker Image
     needs: test
+    if: needs.test.result == 'success'
     runs-on: ubuntu-latest
 
     outputs:
@@ -94,10 +95,10 @@ jobs:
   # DEPLOY PROD (manual approval)
   # --------------------
   deploy-prod:
+    if: github.ref == 'refs/heads/main'
     name: Deploy to PROD
     needs: [deploy-stg, build]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
     environment: prod
 
     steps:
