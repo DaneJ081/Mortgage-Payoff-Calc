@@ -62,26 +62,26 @@
 </head>
 <body>
 
-<h2>Mortgage Payoff Calculator 1/12</h2>
+<h2>Mortgage Payoff Calculator 1/13</h2>
 
 <form method="POST">
     <label>Mortgage Amount</label>
-    <input type="text" name="loan" value="250000">
+    <input type="text" name="loan" value="{{ request.form.get('loan', '250000') }}">
 
     <label>Interest Rate (%)</label>
-    <input type="text" name="rate" value="7">
+    <input type="text" name="rate" value="{{ request.form.get('rate', '7') }}">
 
     <label>Loan Term (Years)</label>
-    <input type="text" name="term" value="30">
+    <input type="text" name="term" value="{{ request.form.get('term', '30') }}">
 
     <label>Extra Monthly Payment ($)</label>
-    <input type="text" name="extra" value="100">
+    <input type="text" name="extra" value="{{ request.form.get('extra', '100') }}">
 
     <label>Annual Property Tax ($)</label>
-    <input type="text" name="tax" value="2500">
+    <input type="text" name="tax" value="{{ request.form.get('tax', '2500') }}">
 
     <label>Annual Insurance Premium ($)</label>
-    <input type="text" name="insurance" value="1500">
+    <input type="text" name="insurance" value="{{ request.form.get('insurance', '1500') }}">
 
     <button type="submit">Calculate</button>
 </form>
