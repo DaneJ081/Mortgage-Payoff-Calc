@@ -3,6 +3,7 @@
 <head>
     <title>Mortgage Calculator</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='mortgage_icon.png') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
     body {
         font-family: Arial, sans-serif;
@@ -14,6 +15,10 @@
     }
 
     h2 {
+        color: #ffffff;
+        text-align: center;
+    }
+    h3 {
         color: #ffffff;
         text-align: center;
     }
@@ -57,33 +62,61 @@
         border: 1px solid #333;
         border-radius: 6px;
     }
+    @media (max-width: 600px) {
+    body {
+        padding: 15px;
+        font-size: 18px;
+    }
+
+    h2 {
+        font-size: 24px;
+    }
+
+    h3 {
+        font-size: 18px;
+    }
+
+    label {
+        font-size: 16px;
+    }
+
+    input, button {
+        font-size: 18px;
+        padding: 14px;
+    }
+
+    button {
+        margin-top: 15px;
+    }
+}
 </style>
 
 </head>
 <body>
 
-<h2>Mortgage Payoff Calculator 1/12</h2>
+<h2>Mortgage Payment and Amortization Calculator</h2>
+<h3>Version 1.2.0</h3>
 
-<form method="POST">
-    <label>Mortgage Amount</label>
-    <input type="text" name="loan" value="250000">
+<form method="POST" onsubmit ="stripCommas(this)">
+    <label>Mortgage Amount ($)</label>
+    <input type="text" name="loan" value="{{ request.form.get('loan', '250000') }}" oninput="formatNumberLive(this)" data-format="number"  inputmode="numeric" pattern="[0-9,]*">
 
     <label>Interest Rate (%)</label>
-    <input type="text" name="rate" value="7">
+    <input type="text" name="rate" value="{{ request.form.get('rate', '7') }}" inputmode="decimal" pattern="[0-9.]*">
 
     <label>Loan Term (Years)</label>
-    <input type="text" name="term" value="30">
+    <input type="text" name="term" value="{{ request.form.get('term', '30') }}" inputmode="numeric" pattern="[0-9,]*">
 
     <label>Extra Monthly Payment ($)</label>
-    <input type="text" name="extra" value="100">
+    <input type="text" name="extra" value="{{ request.form.get('extra', '100') }}" oninput="formatNumberLive(this)" data-format="number" inputmode="numeric" pattern="[0-9,]*">
 
     <label>Annual Property Tax ($)</label>
-    <input type="text" name="tax" value="2500">
+    <input type="text" name="tax" value="{{ request.form.get('tax', '2500') }}" oninput="formatNumberLive(this)" data-format="number" inputmode="numeric" pattern="[0-9,]*">
 
     <label>Annual Insurance Premium ($)</label>
-    <input type="text" name="insurance" value="1500">
+    <input type="text" name="insurance" value="{{ request.form.get('insurance', '1500') }}" oninput="formatNumberLive(this)" data-format="number" inputmode="numeric" pattern="[0-9,]*">
 
-    <button type="submit">Calculate</button>
+    <button type="submit">Calculate Payment</button>
 </form>
 
 {% if result %}
@@ -91,10 +124,10 @@
     {% if result.error %}
         <p style="color: red;">{{ result.error }}</p>
     {% else %}
-        <p><b>Base Monthly Payment:</b> ${{ result.monthlyPayment }}</p>
-        <p><b>Monthly Payment with Extra:</b> ${{ result.monthlyPayment + result.extra }}</p>
-        <p><b>Payoff WITHOUT extra:</b> {{ result.payoff1 }} and ${{ result.totalInterest }}K in interest paid.</p>
-        <p><b>Payoff WITH extra:</b> {{ result.payoff2 }} and ${{ result.totalInterest2 }}K in interest paid.</p>
+        <p><b>Base monthly payment:</b> ${{ result.monthlyPayment }}</p>
+        <p><b>Total monthly payment:</b> ${{ result.monthlyPayment + result.extra }}</p>
+        <p><b>Payoff WITHOUT extra payment:</b> {{ result.payoff1 }} and ${{ result.totalInterest }}K in interest paid.</p>
+        <p><b>Payoff WITH extra payment:</b> {{ result.payoff2 }} and ${{ result.totalInterest2 }}K in interest paid.</p>
         <p><b>Total saved :</b> {{ result.saved }} and ${{ result.interestDifference }}k in interest.</p>
 
         <h3>Payoff Chart</h3>
@@ -105,3 +138,35 @@
 
 </body>
 </html>
+<script>
+function formatNumberLive(input) {
+    // Save cursor position
+    const selectionStart = input.selectionStart;
+
+    // Remove non-digits
+    let value = input.value.replace(/[^\d]/g, '');
+
+    if (value === '') {
+        input.value = '';
+        return;
+    }
+
+    // Format number
+    input.value = Number(value).toLocaleString('en-US');
+
+    // Restore cursor position safely
+    input.setSelectionRange(selectionStart, selectionStart);
+}
+
+function stripCommas(form) {
+    const inputs = form.querySelectorAll('input[type="text"]');
+    inputs.forEach(input => {
+        input.value = input.value.replace(/,/g, '');
+    });
+}
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("input[data-format='number']").forEach(input => {
+        formatNumberLive(input);
+    });
+});
+</script>
