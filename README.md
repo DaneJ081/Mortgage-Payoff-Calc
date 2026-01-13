@@ -1,45 +1,147 @@
-# Project Overview:
-This application uses Flask and Matplotlib to calculate loan amortization schedules and visually compare payoff scenarios based on different monthly payment amounts. It highlights differences in interest paid and total loan duration.
+# DevOpsMortCal – Mortgage Calculator with DevOps Pipeline
+
+![Project Badge](https://img.shields.io/badge/DevOps-Portfolio-green)
+
+## Project Overview
+**DevOpsMortCal** is a Python-based mortgage calculator web application that calculates loan amortization schedules and visually compares payoff scenarios based on different monthly payment amounts. Users can see how different payment strategies affect interest paid and total loan duration.  
+
+This project is also a **DevOps portfolio demonstration**, showcasing:
+
+- End-to-end **CI/CD pipelines** with GitHub Actions
+- **Containerization** with Docker
+- **Infrastructure as Code** with Terraform
+- **Multi-environment cloud deployment** on Azure Container Apps
+- **Observability** via Azure Log Analytics
+- **Code quality & security enforcement** with pre-commit hooks
+
+---
 
 ## Architecture Overview
-Source Code stored in GitHub
-Container Images stored in Azure Container Registry (ACR)
-Hosting via Azure Container Apps (ACA) for Dev, Staging, and Production environments
-CI/CD Pipeline implemented using GitHub Actions
 
-## Pipeline Overview:
-1. Create a feature branch
-   Submit a pull request to Dev
-2. Merge into Dev triggers:
-    Build the container image
-    Tag & push image as dev
-    Deploy image to Dev ACA environment
-3. Merge into main triggers:
-    Build the staging container image
-    Tag & push the image as staging
-    Deploy to Staging ACA environment
-4. Creating a GitHub release triggers:
-    Tag image as prod & semantic version ( vX.Y.Z )
-    Deploy to Production ACA environment
+```
+GitHub Repo
+     │
+     ├─> GitHub Actions (CI/CD)
+             │
+             ├─> Azure Container Registry (ACR)
+                     │
+                     ├─> Azure Container Apps (Dev / Staging / Prod)
+                             │
+                             └─> Logs → Azure Log Analytics
+```
+
+- **Source Code:** GitHub
+- **Container Images:** Azure Container Registry
+- **Hosting Environments:** Dev, Staging, Production (Azure Container Apps)
+- **Observability:** Log Analytics for logs & metrics
+- **CI/CD:** GitHub Actions with PR-based merges, automated builds, and deployments
+
+---
+
+## CI/CD Pipeline Overview
+
+| Branch / Action       | Trigger            | Pipeline Steps                                      | Environment      |
+|-----------------------|------------------|---------------------------------------------------|----------------|
+| Feature → Dev         | Pull Request      | Run pre-commit, unit tests, build container, push | Dev ACA        |
+| Merge → Main          | Pull Request      | Run pre-commit, unit tests, build container, push | Staging ACA    |
+| GitHub Release        | Tag vX.Y.Z        | Build container, push prod image, deploy         | Production ACA |
+
+**Key features:**
+- Pre-commit hooks enforce code quality and security
+- Merges to `main` require passing checks and PR approvals
+- Manual approval gate before Production deployment
+- Semantic version tagging for releases
+
+---
 
 ## Local Development
-Validate that the application code runs locally
 
+### Python (without Docker)
+```bash
 pip install -r requirements.txt
 python app.py
-Then open http://localhost:8000
+# Open http://localhost:8000
+```
 
-Validate the container builds and runs
-
+### Docker
+```bash
 docker build -t mortcal .
 docker run -dp 8000:80 mortcal
-then open http://localhost:8000
+# Open http://localhost:8000
+```
+
+**Notes:**
+- Python version: 3.12
+- Flask default port: 8000
+
+---
+
+## Infrastructure as Code (Terraform)
+
+- Terraform defines all cloud resources in the `infra/` folder
+- Separate `.tfvars` files for **staging** (`stg.tfvars`) and **production** (`prod.tfvars`)
+- Managed resources:
+  - Azure Container Registry
+  - Azure Container Apps (Dev, Staging, Prod)
+  - Log Analytics Workspaces
+- Example commands:
+```bash
+cd infra
+terraform init
+terraform plan -var-file=stg.tfvars
+terraform apply -var-file=stg.tfvars
+```
+
+---
+
+## Observability & Logging
+
+- Azure Container Apps logs are streamed to **Azure Log Analytics**
+- Basic health check endpoint: `/health`
+- Optional: Alerts can be configured for errors or failures
+- Query example in Log Analytics:
+```kusto
+ContainerAppConsoleLogs_CL
+| where TimeGenerated > ago(1h)
+| order by TimeGenerated desc
+```
+
+---
+
+## Code Quality & Security
+
+- **Pre-commit hooks**:
+  - Python formatting: Black
+  - Linting: Flake8
+  - Security checks: Bandit
+- CI runs all pre-commit checks on pull requests
+- Branch protections enforce merge-only updates for `main`
+
+---
 
 ## Tech Stack
-Python
-Flask
-Matplotlib
-Docker
-DockerHub
-Azure Container Apps
-GitHub Actions
+
+- Python 3.12
+- Flask
+- Matplotlib
+- Docker & Azure Container Registry
+- Azure Container Apps
+- GitHub Actions (CI/CD)
+- Terraform (IaC)
+- Azure Log Analytics (observability)
+
+---
+
+## Optional Screenshots / GIFs
+
+- UI screenshot: `static/plot.png`
+- Pipeline screenshot: GitHub Actions workflow runs
+- Architecture diagram: `infra/architecture.png` (optional)
+
+---
+
+
+## Contact / Portfolio
+
+- GitHub: [https://github.com/DaneJ081](https://github.com/DaneJ081)
+- Portfolio: [Insert your portfolio link]
