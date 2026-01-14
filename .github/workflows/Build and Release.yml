@@ -71,6 +71,8 @@ jobs:
             echo "IMAGE_TAG=${GITHUB_REF_NAME}-${SHORT_SHA}" >> $GITHUB_OUTPUT
           else
             echo "IMAGE_TAG=${SHORT_SHA}" >> $GITHUB_OUTPUT
+          fi
+
 
       - name: Set APP_VERSION
         run: |
