@@ -115,6 +115,12 @@
 
     <label>Annual Insurance Premium ($)</label>
     <input type="text" name="insurance" value="{{ request.form.get('insurance', '1500') }}" oninput="formatNumberLive(this)" data-format="number" inputmode="numeric" pattern="[0-9,]*">
+    
+    <label>Annual HOA Dues ($)</label>
+    <input type="text" name="HOA" value="{{ request.form.get('HOA', '0') }}" oninput="formatNumberLive(this)" data-format="number" inputmode="numeric" pattern="[0-9,]*">
+
+    <label>Annual Maintenance and Repairs (%)</label>
+    <input type="text" name="repairs" value="{{ request.form.get('repairs', '2') }}"  data-format="decimal" pattern="[0-9.]*">
 
     <button type="submit">Calculate Payment</button>
 </form>
