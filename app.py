@@ -6,7 +6,7 @@ matplotlib.use("Agg")  # headless for Docker
 import io
 import matplotlib.pyplot as plt
 from flask import Flask, render_template, request, send_file
-from calc_logic import amortization_schedule, parse_amount, pretty_duration, format_k
+from calc_logic import amortization_schedule, pretty_duration, format_k
 import os
 
 app = Flask(__name__)
@@ -21,7 +21,7 @@ def index():
 
     if request.method == "POST":
         try:
-            loan = parse_amount(request.form["loan"])
+            loan = float(request.form["loan"])
             rate = float(request.form["rate"])
             term = int(request.form["term"])
             extra = float(request.form["extra"])
@@ -85,7 +85,7 @@ def index():
         buf.seek(0)
         current_plot = buf
 
-        # Result with interest formatted in 'K'
+        # Result with interest
         result = {
             "monthlyPayment": round(monthly_payment),
             "extra": round(extra),

@@ -99,28 +99,28 @@
 
 <form method="POST" onsubmit ="stripCommas(this)">
     <label>Mortgage Amount ($)</label>
-    <input type="text" name="loan" value="{{ request.form.get('loan', '250000') }}" oninput="formatNumberLive(this)" data-format="number"  inputmode="numeric" pattern="[0-9,]*">
+    <input type="text" name="loan" value="{{ request.form.get('loan', '250000') }}" oninput="formatNumberLive(this)" data-format="number"  inputmode="numeric" pattern="[0-9,.]*">
 
     <label>Interest Rate (%)</label>
-    <input type="text" name="rate" value="{{ request.form.get('rate', '7') }}" inputmode="decimal" pattern="[0-9.]*">
+    <input type="text" name="rate" value="{{ request.form.get('rate', '7') }}" oninput="formatNumberLive(this)" data-format="number" inputmode="numeric" pattern="[0-9.]*">
 
     <label>Loan Term (Years)</label>
-    <input type="text" name="term" value="{{ request.form.get('term', '30') }}" inputmode="numeric" pattern="[0-9,]*">
+    <input type="text" name="term" value="{{ request.form.get('term', '30') }}" oninput="formatNumberLive(this)" data-format="number" inputmode="numeric" pattern="[0-9,.]*">
 
     <label>Extra Monthly Payment ($)</label>
-    <input type="text" name="extra" value="{{ request.form.get('extra', '100') }}" oninput="formatNumberLive(this)" data-format="number" inputmode="numeric" pattern="[0-9,]*">
+    <input type="text" name="extra" value="{{ request.form.get('extra', '100') }}" oninput="formatNumberLive(this)" data-format="number" inputmode="numeric" pattern="[0-9,.]*">
 
     <label>Annual Property Tax ($)</label>
-    <input type="text" name="tax" value="{{ request.form.get('tax', '2500') }}" oninput="formatNumberLive(this)" data-format="number" inputmode="numeric" pattern="[0-9,]*">
+    <input type="text" name="tax" value="{{ request.form.get('tax', '2500') }}" oninput="formatNumberLive(this)" data-format="number" inputmode="numeric" pattern="[0-9,.]*">
 
     <label>Annual Insurance Premium ($)</label>
-    <input type="text" name="insurance" value="{{ request.form.get('insurance', '1500') }}" oninput="formatNumberLive(this)" data-format="number" inputmode="numeric" pattern="[0-9,]*">
+    <input type="text" name="insurance" value="{{ request.form.get('insurance', '1500') }}" oninput="formatNumberLive(this)" data-format="number" inputmode="numeric" pattern="[0-9,.]*">
     
     <label>Annual HOA Dues ($)</label>
-    <input type="text" name="HOA" value="{{ request.form.get('HOA', '0') }}" oninput="formatNumberLive(this)" data-format="number" inputmode="numeric" pattern="[0-9,]*">
+    <input type="text" name="HOA" value="{{ request.form.get('HOA', '0') }}" oninput="formatNumberLive(this)" data-format="number" inputmode="numeric" pattern="[0-9,.]*">
 
     <label>Annual Maintenance and Repairs (%)</label>
-    <input type="text" name="repairs" value="{{ request.form.get('repairs', '2') }}"  data-format="decimal" pattern="[0-9.]*">
+    <input type="text" name="repairs" value="{{ request.form.get('repairs', '2') }}" oninput="formatNumberLive(this)" data-format="decimal" inputmode="numeric" pattern="[0-9.]*">
 
     <button type="submit">Calculate Payment</button>
 </form>
@@ -146,23 +146,36 @@
 </html>
 <script>
 function formatNumberLive(input) {
-    // Save cursor position
-    const selectionStart = input.selectionStart;
+    const cursorPos = input.selectionStart;
 
-    // Remove non-digits
-    let value = input.value.replace(/[^\d]/g, '');
+    // Remove everything except digits and decimal
+    let raw = input.value.replace(/[^\d.]/g, '');
 
-    if (value === '') {
-        input.value = '';
-        return;
+    // Allow only one decimal point
+    const parts = raw.split('.');
+    const integerPart = parts[0];
+    const decimalPart = parts.slice(1).join(''); // drop extra dots
+
+    // Format integer part with commas
+    let formatted = integerPart
+        ? Number(integerPart).toLocaleString('en-US')
+        : '';
+
+    // Reattach decimal if it exists
+    if (raw.includes('.')) {
+        formatted += '.' + decimalPart;
     }
 
-    // Format number
-    input.value = Number(value).toLocaleString('en-US');
+    // Calculate cursor shift
+    const diff = formatted.length - input.value.length;
 
-    // Restore cursor position safely
-    input.setSelectionRange(selectionStart, selectionStart);
+    input.value = formatted;
+
+    // Restore cursor safely
+    const newCursorPos = cursorPos + diff;
+    input.setSelectionRange(newCursorPos, newCursorPos);
 }
+
 
 function stripCommas(form) {
     const inputs = form.querySelectorAll('input[type="text"]');
