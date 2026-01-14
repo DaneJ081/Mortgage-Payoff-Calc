@@ -82,7 +82,7 @@ docker run -dp 8000:80 mortcal
 - Separate `.tfvars` files for **staging** (`stg.tfvars`) and **production** (`prod.tfvars`)
 - Managed resources:
   - Container Apps Environments
-  - Azure Container Apps (Dev, Staging, Prod)
+  - Azure Container Apps (Staging, Prod)
   - Log Analytics Workspaces
 - Example commands:
 ```bash
@@ -111,9 +111,9 @@ ContainerAppConsoleLogs_CL
 ## Code Quality & Security
 
 - **Pre-commit hooks**:
-  - Python formatting: Black
-  - Linting: Flake8
-  - Security checks: Bandit
+- Python formatting: Black
+- Linting: Flake8
+- Security checks: Bandit
 - CI runs all pre-commit checks on pull requests
 - Branch protections enforce merge-only updates for `main`
 
