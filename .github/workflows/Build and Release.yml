@@ -46,7 +46,7 @@ jobs:
         run: pre-commit run --all-files
 
       - name: Unit test
-        run: echo "unit tests"
+        run: PYTHONPATH=. pytest tests/
 
 
   build:

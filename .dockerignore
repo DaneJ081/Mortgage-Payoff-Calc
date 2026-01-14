@@ -10,3 +10,4 @@ Todo.txt
 .env
 *.secrets
 .*_cache/*
+tests/

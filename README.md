@@ -75,7 +75,7 @@ python ./app.py
 ### Docker
 ```bash
 docker build -t mortcal .
-docker run -dp 8000:80 mortcal
+docker run -dp 8000:8000 mortcal
 # Open http://localhost:8000
 ```
 
