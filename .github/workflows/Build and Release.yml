@@ -79,7 +79,7 @@ jobs:
           if [[ "${GITHUB_EVENT_NAME}" == "release" ]]; then
             echo "APP_VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
           else
-            echo "APP_VERSION=Pre-release" >> $GITHUB_ENV
+            echo "Using default 'Pre-release value'
           fi
 
 
@@ -115,7 +115,7 @@ jobs:
             --name $ACA_APP_STG \
             --resource-group $RG_STG \
             --image tiggy081/$IMAGE_NAME:${{ needs.build.outputs.image_tag }} \
-            --set-env-vars APP_VERSION="${APP_VERSION}"
+            --set-env-vars APP_VERSION="Pre-release"
 
   # --------------------
   # DEPLOY PROD (manual approval)
