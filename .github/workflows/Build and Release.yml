@@ -115,7 +115,7 @@ jobs:
             --name $ACA_APP_STG \
             --resource-group $RG_STG \
             --image tiggy081/$IMAGE_NAME:${{ needs.build.outputs.image_tag }} \
-            --set-env-vars APP_VERSION=${APP_VERSION}
+            --set-env-vars APP_VERSION="${APP_VERSION}""
 
   # --------------------
   # DEPLOY PROD (manual approval)
@@ -139,4 +139,4 @@ jobs:
             --name $ACA_APP_PROD \
             --resource-group $RG_PROD \
             --image tiggy081/$IMAGE_NAME:${{ needs.build.outputs.image_tag }} \
-            --set-env-vars APP_VERSION=${APP_VERSION}
+            --set-env-vars APP_VERSION="${APP_VERSION}"
