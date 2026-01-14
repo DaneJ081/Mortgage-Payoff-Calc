@@ -56,12 +56,21 @@ GitHub Repo
 
 ## Local Development
 
-### Python (without Docker)
+### 1. Runtime environment (for running the app)
+Create a virtual environment and install **only the runtime dependencies**:
+
 ```bash
+python3 -m venv venv
+source venv/bin/activate       # Linux/macOS
+# venv\Scripts\activate        # Windows PowerShell
+
+pip install --upgrade pip
 pip install -r requirements.txt
-python app.py
+
+# Run the app
+python ./app.py
 # Open http://localhost:8000
-```
+
 
 ### Docker
 ```bash

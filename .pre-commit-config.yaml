@@ -38,9 +38,3 @@ repos:
     rev: v8.18.1
     hooks:
       - id: gitleaks
-
-  - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.73.0
-    hooks:
-      - id: terraform_fmt
-      - id: terraform_validate
