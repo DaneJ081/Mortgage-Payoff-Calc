@@ -40,17 +40,17 @@ GitHub Repo
 
 ## CI/CD Pipeline Overview
 
-| Branch / Action       | Trigger            | Pipeline Steps                                      | Environment      |
-|-----------------------|------------------|---------------------------------------------------|----------------|
-| Feature → Dev         | Pull Request      | Run pre-commit, unit tests, build container| None       |
-| Merge → Main          | Pull Request      | Run pre-commit, unit tests, build container, push | Staging ACA    |
-| GitHub Release        | Tag vX.Y.Z        | Build container, push prod image, deploy         | Production ACA |
+| Branch / Action       | Trigger            | Pipeline Steps                                                                                   | Environment      |
+|-----------------------|------------------|-------------------------------------------------------------------------------------------------|----------------|
+| Feature → Dev         | Pull Request      | Run pre-commit, unit tests, build container                                                    | None            |
+| Merge → Main          | Pull Request      | Run pre-commit, unit tests, build & push container with SHA tag, deploy to Staging ACA         | Staging ACA     |
+| GitHub Release        | Tag vX.Y.Z        | Build container, tag with SHA + version, push prod image, deploy to Production ACA             | Production ACA  |
 
 **Key features:**
-- Pre-commit hooks enforce code quality and security
-- Merges to `main` require passing checks and PR approvals
-- Manual approval gate before Production deployment
-- Semantic version tagging for releases
+- Docker image tags include the **short SHA**; release builds also include the **version number**.
+- Application UI shows **"Pre-release"** when running non-release builds and the release version for official releases.
+- Manual approval required before deploying to Production.
+- Semantic version tagging and GitHub Release promotion.
 
 ---
 
