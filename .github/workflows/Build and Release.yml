@@ -80,6 +80,8 @@ jobs:
             echo "APP_VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
           else
             echo "APP_VERSION=Pre-release" >> $GITHUB_ENV
+          fi
+
 
 
       - uses: docker/login-action@v2
