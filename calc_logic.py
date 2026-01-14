@@ -1,65 +1,95 @@
-def parse_amount(text):
+# calc_logic.py
+
+
+def parse_amount(text: str) -> float:
+    """Convert strings like '250k', '1.2M', or '1,000' to a float."""
     text = text.lower().replace(",", "").strip()
     if text.endswith("k"):
-        return float(text[:-1]) * 1000
+        return float(text[:-1]) * 1_000
     if text.endswith("m"):
         return float(text[:-1]) * 1_000_000
     return float(text)
 
 
-def calculate_monthly_payment(principal, annual_rate, years, tax, insurance):
-    r = annual_rate / 1200
-    n = years * 12
-    if r == 0:
-        return (principal / n) + (tax / 12) + (insurance / 12)
-    return (r * principal) / (1 - (1 + r) ** (-n))
+def calculate_monthly_principal_interest(principal, annual_rate, years):
+    """Return pure mortgage payment (principal + interest) without fixed costs."""
+    months = years * 12
+    monthly_rate = annual_rate / 12 / 100
+    if monthly_rate == 0:
+        return principal / months
+    return (monthly_rate * principal) / (1 - (1 + monthly_rate) ** -months)
 
 
-def do_math(loanAmount, interestRate, extraPayment, loanTermYears, tax, insurance):
-    Balances = []
-    Months = []
-    totalInterest = 0
-
-    Balance = loanAmount
-    monthlyInterestRate = interestRate / 1200
-    monthlyPayment = calculate_monthly_payment(
-        loanAmount, interestRate, loanTermYears, tax, insurance
+def calculate_monthly_payment(
+    principal, annual_rate, years, tax=0, insurance=0, HOA=0, repairs=0
+):
+    """
+    Return total monthly payment including fixed monthly costs.
+    Repairs is % of principal per year.
+    """
+    mortgage_payment = calculate_monthly_principal_interest(
+        principal, annual_rate, years
     )
-    totalPayment = monthlyPayment + extraPayment
+    fixed_costs = (
+        tax / 12 + insurance / 12 + HOA / 12 + (repairs / 100) * principal / 12
+    )
+    return mortgage_payment + fixed_costs
 
+
+def amortization_schedule(
+    principal,
+    annual_rate,
+    extra_payment=0,
+    years=30,
+    tax=0,
+    insurance=0,
+    HOA=0,
+    repairs=0,
+):
+    """
+    Calculate amortization schedule.
+    Returns:
+      balances: remaining principal each month
+      months_list: month numbers
+      total_interest: total interest paid (rounded)
+      total_payment: monthly payment including fixed costs (without extra)
+    """
+    balances = []
+    months_list = []
+    total_interest = 0.0
+
+    monthly_rate = annual_rate / 12 / 100
+    base_payment = calculate_monthly_principal_interest(principal, annual_rate, years)
+    fixed_costs = (
+        tax / 12 + insurance / 12 + HOA / 12 + (repairs / 100) * principal / 12
+    )
+    total_payment_with_extra = base_payment + fixed_costs + extra_payment
+
+    balance = principal
     month = 0
-    epsilon = 0.01
 
-    while Balance > epsilon:
-        interest = Balance * monthlyInterestRate
-        principal = totalPayment - interest
+    while balance > 0.01:
+        interest = balance * monthly_rate
+        principal_paid = max(
+            0, min(total_payment_with_extra - fixed_costs - interest, balance)
+        )
+        total_interest += interest
 
-        if principal < 0:
-            principal = 0
-
-        if principal > Balance:
-            principal = Balance
-
-        Balances.append(Balance)
-        Months.append(month)
-        totalInterest += interest
-
-        Balance -= principal
+        balances.append(balance)
+        months_list.append(month)
+        balance -= principal_paid
         month += 1
 
-    return (
-        Balances,
-        Months,
-        round(totalInterest / 1000),
-        monthlyPayment + tax / 12 + insurance / 12,
-    )
+    total_payment = base_payment + fixed_costs
+    return balances, months_list, round(total_interest), total_payment
 
 
-def pretty_duration(months: int):
-    years = months // 12
-    remaining_months = months % 12
+def pretty_duration(months: int) -> str:
+    """Convert months to human-readable duration."""
+    years, remaining = divmod(months, 12)
+    return f"{years} years" if remaining == 0 else f"{years} years {remaining} months"
 
-    if remaining_months == 0:
-        return f"{years} years"
-    else:
-        return f"{years} years {remaining_months} months"
+
+def format_k(amount: float) -> str:
+    """Format large amounts in thousands with 'K'."""
+    return f"{round(amount / 1000)}"
