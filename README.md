@@ -3,7 +3,7 @@
 ![Project Badge](https://img.shields.io/badge/DevOps-Portfolio-green)
 
 ## Project Overview
-**DevOpsMortCal** is a Python-based mortgage calculator web application that calculates loan amortization schedules and visually compares payoff scenarios based on different monthly payment amounts. Users can see how different payment strategies affect interest paid and total loan duration.  
+**DevOpsMortCal** is a Python-based mortgage calculator web application that calculates, monthly mortgage payments, loan amortization schedules and visually compares payoff scenarios based on different monthly payment amounts. Users can see how different payment strategies affect interest paid and total loan duration.  
 
 This project is also a **DevOps portfolio demonstration**, showcasing:
 
@@ -12,7 +12,7 @@ This project is also a **DevOps portfolio demonstration**, showcasing:
 - **Infrastructure as Code** with Terraform
 - **Multi-environment cloud deployment** on Azure Container Apps
 - **Observability** via Azure Log Analytics
-- **Code quality & security enforcement** with pre-commit hooks
+- **Code quality & security enforcement** with pre-commit hooks and unit tests
 
 ---
 
@@ -23,16 +23,16 @@ GitHub Repo
      │
      ├─> GitHub Actions (CI/CD)
              │
-             ├─> Azure Container Registry (ACR)
+             ├─> DockerHub
                      │
-                     ├─> Azure Container Apps (Dev / Staging / Prod)
+                     ├─> Azure Container Apps (Staging / Prod)
                              │
                              └─> Logs → Azure Log Analytics
 ```
 
 - **Source Code:** GitHub
-- **Container Images:** Azure Container Registry
-- **Hosting Environments:** Dev, Staging, Production (Azure Container Apps)
+- **Container Images:** DockerHub
+- **Hosting Environments:** Staging, Production (Azure Container Apps)
 - **Observability:** Log Analytics for logs & metrics
 - **CI/CD:** GitHub Actions with PR-based merges, automated builds, and deployments
 
@@ -42,7 +42,7 @@ GitHub Repo
 
 | Branch / Action       | Trigger            | Pipeline Steps                                      | Environment      |
 |-----------------------|------------------|---------------------------------------------------|----------------|
-| Feature → Dev         | Pull Request      | Run pre-commit, unit tests, build container, push | Dev ACA        |
+| Feature → Dev         | Pull Request      | Run pre-commit, unit tests, build container| None       |
 | Merge → Main          | Pull Request      | Run pre-commit, unit tests, build container, push | Staging ACA    |
 | GitHub Release        | Tag vX.Y.Z        | Build container, push prod image, deploy         | Production ACA |
 
@@ -81,7 +81,7 @@ docker run -dp 8000:80 mortcal
 - Terraform defines all cloud resources in the `infra/` folder
 - Separate `.tfvars` files for **staging** (`stg.tfvars`) and **production** (`prod.tfvars`)
 - Managed resources:
-  - Azure Container Registry
+  - Container Apps Environments
   - Azure Container Apps (Dev, Staging, Prod)
   - Log Analytics Workspaces
 - Example commands:
@@ -121,27 +121,36 @@ ContainerAppConsoleLogs_CL
 
 ## Tech Stack
 
-- Python 3.12
-- Flask
-- Matplotlib
-- Docker & Azure Container Registry
-- Azure Container Apps
-- GitHub Actions (CI/CD)
-- Terraform (IaC)
-- Azure Log Analytics (observability)
+### Application & Runtime
+- **Python 3.12**
+- **Flask** – Web application framework
+- **Matplotlib** – Amortization and payoff visualizations
+
+### Containerization & Hosting
+- **Docker** – Application containerization
+- **Docker Hub** – Image registry
+- **Azure Container Apps** – Serverless container hosting (Dev / Staging / Prod)
+
+### Infrastructure as Code
+- **Terraform** – Provisioning Azure resources (ACR, ACA, Log Analytics)
+
+### CI/CD & Release Management
+- **GitHub Actions** – Build, test, security scanning, and deployments
+- **GitHub Releases** – Semantic versioning and production promotion
+
+### Testing, Quality & Security
+- **Pytest** – Unit testing
+- **Ruff** – Fast Python linting
+- **Black** – Code formatting
+- **MyPy** – Static type checking
+- **Bandit** – Python security scanning
+- **Gitleaks** – Secrets detection
+
+### Observability
+- **Azure Log Analytics** – Centralized logging and monitoring
 
 ---
-
-## Optional Screenshots / GIFs
-
-- UI screenshot: `static/plot.png`
-- Pipeline screenshot: GitHub Actions workflow runs
-- Architecture diagram: `infra/architecture.png` (optional)
-
----
-
 
 ## Contact / Portfolio
 
 - GitHub: [https://github.com/DaneJ081](https://github.com/DaneJ081)
-- Portfolio: [Insert your portfolio link]
