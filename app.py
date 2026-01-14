@@ -7,7 +7,6 @@ import io
 import matplotlib.pyplot as plt
 from flask import Flask, render_template, request, send_file
 from calc_logic import amortization_schedule, pretty_duration, format_k
-import os
 
 app = Flask(__name__)
 current_plot = None  # in-memory plot
@@ -17,7 +16,6 @@ current_plot = None  # in-memory plot
 def index():
     global current_plot
     result = None
-    version = os.getenv("APP_VERSION", "Pre-release")
 
     if request.method == "POST":
         try:
@@ -31,7 +29,7 @@ def index():
             repairs = float(request.form.get("repairs", 0))
         except Exception:
             result = {"error": "Invalid input. Check your values."}
-            return render_template("index.html", result=result, version=version)
+            return render_template("index.html", result=result)
 
         # Minimum payment schedule
         balances_min, months_min, total_interest_min, monthly_payment = (
@@ -98,7 +96,7 @@ def index():
             "plot": "/plot.png",
         }
 
-    return render_template("index.html", result=result, version=version)
+    return render_template("index.html", result=result)
 
 
 @app.route("/plot.png")
