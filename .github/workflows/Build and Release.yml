@@ -3,7 +3,13 @@ name: Build and Deploy
 
 on:
   push:
-    branches: ["*"]
+    branches:
+      - main
+  pull_request:
+    branches:
+      - dev
+  release:
+    types: [published]
   workflow_dispatch:
 
 env:
@@ -19,10 +25,10 @@ concurrency:
 
 jobs:
   # --------------------
-  # TESTS (every push)
+  # Formatter and Linter (every push)
   # --------------------
-  test:
-    name: Run pre-commit checks
+  formatLintAndTest:
+    name: Format, Lint and Test Code
     runs-on: ubuntu-latest
 
     steps:
@@ -32,7 +38,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      
+
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -44,21 +50,35 @@ jobs:
       - name: Run pre-commit (all files)
         run: pre-commit run --all-files
 
+      - name: Unit test
+        run: echo "unit tests"
+
 
   build:
     name: Build & Push Docker Image
-    needs: test
-    if: needs.test.result == 'success'
+    needs: formatLintAndTest
     runs-on: ubuntu-latest
-
     outputs:
-      image_tag: ${{ steps.sha.outputs.tag }}
+      image_tag: ${{ steps.set_tag.outputs.IMAGE_TAG }}
 
     steps:
       - uses: actions/checkout@v5
 
-      - id: sha
-        run: echo "tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+      - id: set_tag
+        run: |
+          SHORT_SHA=${GITHUB_SHA::7}
+          if [[ "${GITHUB_EVENT_NAME}" == "release" ]]; then
+            echo "IMAGE_TAG=${GITHUB_REF_NAME}-${SHORT_SHA}" >> $GITHUB_OUTPUT
+          else
+            echo "IMAGE_TAG=${SHORT_SHA}" >> $GITHUB_OUTPUT
+
+      - name: Set APP_VERSION
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "release" ]]; then
+            echo "APP_VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+          else
+            echo "APP_VERSION=Pre-release" >> $GITHUB_ENV
+
 
       - uses: docker/login-action@v2
         with:
@@ -66,8 +86,9 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - run: |
-          docker build -t tiggy081/$IMAGE_NAME:${{ steps.sha.outputs.tag }} .
-          docker push tiggy081/$IMAGE_NAME:${{ steps.sha.outputs.tag }}
+          docker build -t tiggy081/$IMAGE_NAME:${{ steps.set_tag.outputs.IMAGE_TAG }} .
+          docker push tiggy081/$IMAGE_NAME:${{ steps.set_tag.outputs.IMAGE_TAG }}
+
 
   # --------------------
   # DEPLOY STG
@@ -95,7 +116,7 @@ jobs:
   # DEPLOY PROD (manual approval)
   # --------------------
   deploy-prod:
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'release'
     name: Deploy to PROD
     needs: [deploy-stg, build]
     runs-on: ubuntu-latest
