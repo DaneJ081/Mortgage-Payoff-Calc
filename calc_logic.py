@@ -1,16 +1,6 @@
 # calc_logic.py
 
 
-def parse_amount(text: str) -> float:
-    """Convert strings like '250k', '1.2M', or '1,000' to a float."""
-    text = text.lower().replace(",", "").strip()
-    if text.endswith("k"):
-        return float(text[:-1]) * 1_000
-    if text.endswith("m"):
-        return float(text[:-1]) * 1_000_000
-    return float(text)
-
-
 def calculate_monthly_principal_interest(principal, annual_rate, years):
     """Return pure mortgage payment (principal + interest) without fixed costs."""
     months = years * 12
