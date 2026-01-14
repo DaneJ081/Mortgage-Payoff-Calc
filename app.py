@@ -1,5 +1,7 @@
 import matplotlib
 
+import os
+
 matplotlib.use("Agg")  # headless for Docker
 import io
 
@@ -18,6 +20,7 @@ current_plot = None
 def index():
     global current_plot
     result = None
+    version = os.getenv("APP_VERSION", "Pre-release")
 
     if request.method == "POST":
         try:
@@ -78,7 +81,7 @@ def index():
             "plot": "/plot.png",  # points to new route
         }
 
-    return render_template("index.html", result=result)
+    return render_template("index.html", result=result, version=version)
 
 
 @app.route("/plot.png")
