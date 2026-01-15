@@ -66,10 +66,9 @@ python3 -m venv venv
 source venv/bin/activate       # Linux/macOS
 # venv\Scripts\activate       # Windows PowerShell
 
-pip install --upgrade pip
 pip install -r requirements.txt
 
-python app.py
+python ./app.py
 # Open http://localhost:8000
 ```
 
@@ -93,7 +92,7 @@ docker run -p 8000:8000 mortcal
 Unit tests are written using **pytest** and cover both business logic and Flask routes.
 
 ```bash
-pytest
+PYTHONPATH=. pytest tests/
 ```
 
 * Tests are located in the `tests/` directory
@@ -143,18 +142,6 @@ terraform apply -var-file=stg.tfvars
 
 ---
 
-## Configuration
-
-### Environment Variables
-
-| Variable      | Description                                                        |
-| ------------- | ------------------------------------------------------------------ |
-| `APP_VERSION` | Application version displayed in the UI (`Pre-release` by default) |
-
-This variable is injected during deployment via GitHub Actions.
-
----
-
 ## Tech Stack
 
 ### Application & Runtime
@@ -184,5 +171,3 @@ This variable is injected during deployment via GitHub Actions.
 
 * **GitHub:** [https://github.com/DaneJ081](https://github.com/DaneJ081)
 * **Project Repo:** DevOpsMortCal
-
-This project is designed to showcase real-world DevOps workflows, tooling, and best practices.
