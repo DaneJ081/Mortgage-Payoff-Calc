@@ -43,10 +43,10 @@ jobs:
         run: pip install pre-commit
 
       - name: Run pre-commit (all files)
-        run: pre-commit run --all-files
+        run: pre-commit run --all-files --verbose
 
-      - name: Install Pytest
-        run: pip install pytest
+      - name: Install Pytest and App Dependencies
+        run: pip install pytest matplotlib
 
       - name: Unit test
         run: PYTHONPATH=. pytest tests/
