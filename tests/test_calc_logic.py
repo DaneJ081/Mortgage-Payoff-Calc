@@ -1,6 +1,6 @@
 # tests/test_calc_logic.py
 import pytest
-from calc_logic import (
+from calc import (
     calculate_monthly_principal_interest,
     calculate_monthly_payment,
     amortization_schedule,
