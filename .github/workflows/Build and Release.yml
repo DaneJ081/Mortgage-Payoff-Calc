@@ -46,7 +46,7 @@ jobs:
         run: pre-commit run --all-files --verbose
 
       - name: Install Pytest and App Dependencies
-        run: pip install pytest matplotlib
+        run: pip install pytest matplotlib flask
 
       - name: Unit test
         run: PYTHONPATH=. pytest tests/
