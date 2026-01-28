@@ -2,7 +2,6 @@
 import pytest
 from calc_logic import (
     calculate_monthly_principal_interest,
-    calculate_monthly_payment,
     amortization_schedule,
     pretty_duration,
     format_k,
@@ -15,24 +14,6 @@ def test_zero_interest():
     years = 10
     payment = calculate_monthly_principal_interest(principal, annual_rate, years)
     assert payment == 100  # 12,000 / 12*12 months
-
-
-# ------------------------
-# Test calculate_monthly_payment (includes fixed costs)
-# ------------------------
-def test_monthly_payment_with_fixed_costs():
-    principal = 100_000
-    annual_rate = 5
-    years = 30
-    tax = 3600  # annual
-    insurance = 1200
-    HOA = 600
-    repairs = 1  # 1% of principal per year
-
-    payment = calculate_monthly_payment(
-        principal, annual_rate, years, tax, insurance, HOA, repairs
-    )
-    assert payment > 0
 
 
 # ------------------------

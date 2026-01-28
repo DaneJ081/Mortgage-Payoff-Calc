@@ -1,0 +1,1 @@
+add unit test for downpayment 20% and PMI 0 =

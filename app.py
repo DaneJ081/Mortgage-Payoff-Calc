@@ -1,7 +1,6 @@
-# app.py
 import matplotlib
 
-matplotlib.use("Agg")  # headless for Docker
+matplotlib.use("Agg")
 
 import io
 import matplotlib.pyplot as plt
@@ -9,7 +8,7 @@ from flask import Flask, render_template, request, send_file
 from calc_logic import amortization_schedule, pretty_duration, format_k
 
 app = Flask(__name__)
-current_plot = None  # in-memory plot
+current_plot = None
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -20,21 +19,31 @@ def index():
     if request.method == "POST":
         try:
             loan = float(request.form["loan"])
+            downpayment = float(request.form.get("downpayment", 0))
             rate = float(request.form["rate"])
             term = int(request.form["term"])
+            pmi_rate = float(request.form.get("pmi", 0))
             extra = float(request.form["extra"])
             tax = float(request.form["tax"])
             insurance = float(request.form["insurance"])
             HOA = float(request.form.get("HOA", 0))
             repairs = float(request.form.get("repairs", 0))
         except Exception:
-            result = {"error": "Invalid input. Check your values."}
-            return render_template("index.html", result=result)
+            return render_template("index.html", result={"error": "Invalid input"})
+
+        # Down payment (%)
+        downpayment_amount = loan * (downpayment / 100)
+        loan_amount = loan - downpayment_amount
+
+        # PMI (only if < 20% down)
+        pmi = 0
+        if downpayment < 20:
+            pmi = (pmi_rate / 100) * loan_amount
 
         # Minimum payment schedule
         balances_min, months_min, total_interest_min, monthly_payment = (
             amortization_schedule(
-                principal=loan,
+                principal=loan_amount,
                 annual_rate=rate,
                 extra_payment=0,
                 years=term,
@@ -42,12 +51,13 @@ def index():
                 insurance=insurance,
                 HOA=HOA,
                 repairs=repairs,
+                pmi=pmi,
             )
         )
 
-        # Schedule with extra payments
+        # Extra payment schedule
         balances_extra, months_extra, total_interest_extra, _ = amortization_schedule(
-            principal=loan,
+            principal=loan_amount,
             annual_rate=rate,
             extra_payment=extra,
             years=term,
@@ -55,35 +65,31 @@ def index():
             insurance=insurance,
             HOA=HOA,
             repairs=repairs,
+            pmi=pmi,
         )
 
-        # Metrics
         interest_saved = total_interest_min - total_interest_extra
         payoff_min = pretty_duration(len(months_min))
         payoff_extra = pretty_duration(len(months_extra))
         saved_duration = pretty_duration(len(months_min) - len(months_extra))
 
-        # Generate plot
+        # Plot
         buf = io.BytesIO()
         plt.style.use("dark_background")
         plt.figure(figsize=(7, 4))
-
-        plt.title("Loan Payoff Comparison", color="white")
-        plt.xlabel("Months", color="white")
-        plt.ylabel("Remaining Balance ($)", color="white")
-        plt.grid(True, color="#555")
-
         plt.plot(months_min, balances_min, label="Minimum Payments")
         plt.plot(months_extra, balances_extra, label="With Extra Payments")
-        plt.legend(facecolor="#222", edgecolor="#444", labelcolor="white")
-
+        plt.title("Loan Payoff Comparison")
+        plt.xlabel("Months")
+        plt.ylabel("Remaining Balance ($)")
+        plt.grid(True)
+        plt.legend()
         plt.tight_layout()
         plt.savefig(buf, format="png", dpi=120)
         plt.close()
         buf.seek(0)
         current_plot = buf
 
-        # Result with interest
         result = {
             "monthlyPayment": round(monthly_payment),
             "extra": round(extra),
@@ -101,7 +107,7 @@ def index():
 
 @app.route("/plot.png")
 def plot_png():
-    if current_plot is None:
+    if not current_plot:
         return "No plot available", 404
     return send_file(io.BytesIO(current_plot.getvalue()), mimetype="image/png")
 
