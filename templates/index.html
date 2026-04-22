@@ -70,41 +70,41 @@
     <input type="text" name="loan" value="{{ request.form.get('loan', '250000') }}"
            oninput="formatNumberLive(this)" data-format="number"></label>
 
-    <label>Down Payment (%)</label>
+    <label>Down Payment (%)
     <input type="text" name="downpayment" value="{{ request.form.get('downpayment', '20') }}"
-           oninput="formatNumberLive(this)" data-format="decimal">
+           oninput="formatNumberLive(this)" data-format="decimal"></label>
 
-    <label>Interest Rate (%)</label>
+    <label>Interest Rate (%)
     <input type="text" name="rate" value="{{ request.form.get('rate', '7') }}"
-           oninput="formatNumberLive(this)" data-format="decimal">
+           oninput="formatNumberLive(this)" data-format="decimal"></label>
 
-    <label>Loan Term (Years)</label>
+    <label>Loan Term (Years)
     <input type="text" name="term" value="{{ request.form.get('term', '30') }}"
-           oninput="formatNumberLive(this)" data-format="number">
+           oninput="formatNumberLive(this)" data-format="number"></label>
 
-    <label>PMI Rate (%)</label>
+    <label>PMI Rate (%)
     <input type="text" name="pmi" value="{{ request.form.get('pmi', '0.5') }}"
-           oninput="formatNumberLive(this)" data-format="decimal">
+           oninput="formatNumberLive(this)" data-format="decimal"></label>
 
-    <label>Extra Monthly Payment ($)</label>
+    <label>Extra Monthly Payment ($)
     <input type="text" name="extra" value="{{ request.form.get('extra', '100') }}"
-           oninput="formatNumberLive(this)" data-format="number">
+           oninput="formatNumberLive(this)" data-format="number"></label>
 
-    <label>Annual Property Tax ($)</label>
+    <label>Annual Property Tax ($)
     <input type="text" name="tax" value="{{ request.form.get('tax', '2500') }}"
-           oninput="formatNumberLive(this)" data-format="number">
+           oninput="formatNumberLive(this)" data-format="number"></label>
 
-    <label>Annual Insurance Premium ($)</label>
+    <label>Annual Insurance Premium ($)
     <input type="text" name="insurance" value="{{ request.form.get('insurance', '1500') }}"
-           oninput="formatNumberLive(this)" data-format="number">
+           oninput="formatNumberLive(this)" data-format="number"></label>
 
-    <label>Annual HOA Dues ($)</label>
+    <label>Annual HOA Dues ($)
     <input type="text" name="HOA" value="{{ request.form.get('HOA', '0') }}"
-           oninput="formatNumberLive(this)" data-format="number">
+           oninput="formatNumberLive(this)" data-format="number"></label>
 
-    <label>Annual Maintenance and Repairs (%)</label>
+    <label>Annual Maintenance and Repairs (%)
     <input type="text" name="repairs" value="{{ request.form.get('repairs', '2') }}"
-           oninput="formatNumberLive(this)" data-format="decimal">
+           oninput="formatNumberLive(this)" data-format="decimal"></label>
 
     <button type="submit">Calculate Payment</button>
 </form>
