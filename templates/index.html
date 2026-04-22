@@ -66,9 +66,9 @@
 <h1>Mortgage Payment and Payoff Calculator</h1>
 
 <form method="POST" onsubmit="stripCommas(this)">
-    <label>Home Price ($)</label>
+    <label >Home Price ($)
     <input type="text" name="loan" value="{{ request.form.get('loan', '250000') }}"
-           oninput="formatNumberLive(this)" data-format="number">
+           oninput="formatNumberLive(this)" data-format="number"></label>
 
     <label>Down Payment (%)</label>
     <input type="text" name="downpayment" value="{{ request.form.get('downpayment', '20') }}"
