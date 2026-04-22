@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Mortgage Calculator</title>
+    <title>Mortgage Calculator - Calculate Payments & Amortization</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Calculate your mortgage payments, amortization schedule, and estimate your total cost. Free online calculator includes PMI, property taxes, HOA fees and maintenance.">
 
     <style>
     body {
@@ -63,8 +63,7 @@
 </head>
 
 <body>
-
-<h2>Mortgage Payment and Amortization Calculator</h2>
+<h1>Mortgage Payment and Payoff Calculator</h1>
 
 <form method="POST" onsubmit="stripCommas(this)">
     <label>Home Price ($)</label>
@@ -122,7 +121,7 @@
         <p><b>Total saved:</b> {{ result.saved }} and ${{ result.interestDifference }}K interest</p>
 
         <h3>Payoff Chart</h3>
-        <img src="{{ result.plot }}" width="100%">
+        <img src="{{ result.plot }}" width="100%" alt="Mortgage amortization graph">
     {% endif %}
 </div>
 {% endif %}
