@@ -9,3 +9,4 @@ Todo.txt
 .env
 *.secrets
 .*_cache/*
+tests/__pycache__/
