@@ -15,7 +15,7 @@
         padding: 20px;
     }
 
-    h2, h3 {
+    h1, h2, h3 {
         color: #ffffff;
         text-align: center;
     }
@@ -59,88 +59,105 @@
         border: 1px solid #333;
         border-radius: 6px;
     }
+
+    footer {
+        margin-top: 30px;
+        text-align: center;
+        color: #666;
+        font-size: 14px;
+    }
     </style>
 </head>
 
 <body>
-<h1>Mortgage Payment and Payoff Calculator</h1>
+    <header>
+        <h1>Mortgage Payment and Payoff Calculator</h1>
+    </header>
 
-<form method="POST" onsubmit="stripCommas(this)">
-    <label >Home Price ($)
-    <input type="text" name="loan" value="{{ request.form.get('loan', '250000') }}"
-           oninput="formatNumberLive(this)" data-format="number"></label>
+    <main>
+        <form method="POST" onsubmit="stripCommas(this)" aria-label="Mortgage Calculator">
+            <label>Home Price ($)
+            <input type="text" name="loan" value="{{ request.form.get('loan', '250000') }}"
+                oninput="formatNumberLive(this)" data-format="number"></label>
 
-    <label>Down Payment (%)
-    <input type="text" name="downpayment" value="{{ request.form.get('downpayment', '20') }}"
-           oninput="formatNumberLive(this)" data-format="decimal"></label>
+            <label>Down Payment (%)
+            <input type="text" name="downpayment" value="{{ request.form.get('downpayment', '20') }}"
+                oninput="formatNumberLive(this)" data-format="decimal"></label>
 
-    <label>Interest Rate (%)
-    <input type="text" name="rate" value="{{ request.form.get('rate', '7') }}"
-           oninput="formatNumberLive(this)" data-format="decimal"></label>
+            <label>Interest Rate (%)
+            <input type="text" name="rate" value="{{ request.form.get('rate', '7') }}"
+                oninput="formatNumberLive(this)" data-format="decimal"></label>
 
-    <label>Loan Term (Years)
-    <input type="text" name="term" value="{{ request.form.get('term', '30') }}"
-           oninput="formatNumberLive(this)" data-format="number"></label>
+            <label>Loan Term (Years)
+            <input type="text" name="term" value="{{ request.form.get('term', '30') }}"
+                oninput="formatNumberLive(this)" data-format="number"></label>
 
-    <label>PMI Rate (%)
-    <input type="text" name="pmi" value="{{ request.form.get('pmi', '0.5') }}"
-           oninput="formatNumberLive(this)" data-format="decimal"></label>
+            <label>PMI Rate (%)
+            <input type="text" name="pmi" value="{{ request.form.get('pmi', '0.5') }}"
+                oninput="formatNumberLive(this)" data-format="decimal"></label>
 
-    <label>Extra Monthly Payment ($)
-    <input type="text" name="extra" value="{{ request.form.get('extra', '100') }}"
-           oninput="formatNumberLive(this)" data-format="number"></label>
+            <label>Extra Monthly Payment ($)
+            <input type="text" name="extra" value="{{ request.form.get('extra', '100') }}"
+                oninput="formatNumberLive(this)" data-format="number"></label>
 
-    <label>Annual Property Tax ($)
-    <input type="text" name="tax" value="{{ request.form.get('tax', '2500') }}"
-           oninput="formatNumberLive(this)" data-format="number"></label>
+            <label>Annual Property Tax ($)
+            <input type="text" name="tax" value="{{ request.form.get('tax', '2500') }}"
+                oninput="formatNumberLive(this)" data-format="number"></label>
 
-    <label>Annual Insurance Premium ($)
-    <input type="text" name="insurance" value="{{ request.form.get('insurance', '1500') }}"
-           oninput="formatNumberLive(this)" data-format="number"></label>
+            <label>Annual Insurance Premium ($)
+            <input type="text" name="insurance" value="{{ request.form.get('insurance', '1500') }}"
+                oninput="formatNumberLive(this)" data-format="number"></label>
 
-    <label>Annual HOA Dues ($)
-    <input type="text" name="HOA" value="{{ request.form.get('HOA', '0') }}"
-           oninput="formatNumberLive(this)" data-format="number"></label>
+            <label>Annual HOA Dues ($)
+            <input type="text" name="HOA" value="{{ request.form.get('HOA', '0') }}"
+                oninput="formatNumberLive(this)" data-format="number"></label>
 
-    <label>Annual Maintenance and Repairs (%)
-    <input type="text" name="repairs" value="{{ request.form.get('repairs', '2') }}"
-           oninput="formatNumberLive(this)" data-format="decimal"></label>
+            <label>Annual Maintenance and Repairs (%)
+            <input type="text" name="repairs" value="{{ request.form.get('repairs', '2') }}"
+                oninput="formatNumberLive(this)" data-format="decimal"></label>
 
-    <button type="submit">Calculate Payment</button>
-</form>
+            <button type="submit">Calculate Payment</button>
+        </form>
 
-{% if result %}
-<div class="result-box">
-    {% if result.error %}
-        <p style="color:red">{{ result.error }}</p>
-    {% else %}
-        <p><b>Base monthly payment:</b> ${{ result.monthlyPayment }}</p>
-        <p><b>Total monthly payment:</b> ${{ result.monthlyPayment + result.extra }}</p>
-        <p><b>Payoff WITHOUT extra payment:</b> {{ result.payoff1 }} and ${{ result.totalInterest }}K interest</p>
-        <p><b>Payoff WITH extra payment:</b> {{ result.payoff2 }} and ${{ result.totalInterest2 }}K interest</p>
-        <p><b>Total saved:</b> {{ result.saved }} and ${{ result.interestDifference }}K interest</p>
+        <section aria-label="Calculation Results" aria-live="polite">
+            {% if result %}
+            <div class="result-box">
+                {% if result.error %}
+                    <p style="color:red">{{ result.error }}</p>
+                {% else %}
+                    <p><b>Base monthly payment:</b> ${{ result.monthlyPayment }}</p>
+                    <p><b>Total monthly payment:</b> ${{ result.monthlyPayment + result.extra }}</p>
+                    <p><b>Payoff WITHOUT extra payment:</b> {{ result.payoff1 }} and ${{ result.totalInterest }}K interest</p>
+                    <p><b>Payoff WITH extra payment:</b> {{ result.payoff2 }} and ${{ result.totalInterest2 }}K interest</p>
+                    <p><b>Total saved:</b> {{ result.saved }} and ${{ result.interestDifference }}K interest</p>
 
-        <h3>Payoff Chart</h3>
-        <img src="{{ result.plot }}" width="100%" alt="Mortgage amortization graph">
-    {% endif %}
-</div>
-{% endif %}
+                    <h3>Payoff Chart</h3>
+                    <img src="{{ result.plot }}" width="100%" alt="Mortgage amortization graph">
+                {% endif %}
+            </div>
+            {% endif %}
+        </section>
+    </main>
 
-<script>
-function formatNumberLive(input) {
-    const raw = input.value.replace(/[^\d.]/g, '');
-    const parts = raw.split('.');
-    let formatted = parts[0] ? Number(parts[0]).toLocaleString('en-US') : '';
-    if (raw.includes('.')) formatted += '.' + parts.slice(1).join('');
-    input.value = formatted;
-}
+    <footer>
+        <p>Free mortgage calculator tool</p>
+    </footer>
 
-function stripCommas(form) {
-    form.querySelectorAll("input").forEach(i => {
-        i.value = i.value.replace(/,/g, '');
-    });
-}
-</script>
+    <script>
+    function formatNumberLive(input) {
+        const raw = input.value.replace(/[^\d.]/g, '');
+        const parts = raw.split('.');
+        let formatted = parts[0] ? Number(parts[0]).toLocaleString('en-US') : '';
+        if (raw.includes('.')) formatted += '.' + parts.slice(1).join('');
+        input.value = formatted;
+    }
+
+    function stripCommas(form) {
+        form.querySelectorAll("input").forEach(i => {
+            i.value = i.value.replace(/,/g, '');
+        });
+    }
+    </script>
 
 </body>
 </html>
