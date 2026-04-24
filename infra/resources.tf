@@ -12,7 +12,7 @@ resource "azurerm_log_analytics_workspace" "law" {
 }
 
 resource "azurerm_container_app_environment" "cae" {
-  name                       = "${var.prefix}-containerenv-${var.env}"
+  name                       = "${var.prefix}-cae-${var.env}"
   location                   = azurerm_resource_group.rg.location
   resource_group_name        = azurerm_resource_group.rg.name
   log_analytics_workspace_id = azurerm_log_analytics_workspace.law.id
@@ -20,15 +20,17 @@ resource "azurerm_container_app_environment" "cae" {
 }
 
 resource "azurerm_container_app" "ca" {
-  name                         = "${var.prefix}-containerapp-${var.env}"
+  name                         = "${var.prefix}-ca-${var.env}"
   container_app_environment_id = azurerm_container_app_environment.cae.id
   resource_group_name          = azurerm_resource_group.rg.name
   revision_mode                = "Single"
 
   template {
+    min_replicas = var.min_replicas
+
     container {
       name   = "${var.prefix}-containerapp"
-      image  = "tiggy081/mortcal:latest"
+      image  = "tiggy081/mortcal:d93af48"
       cpu    = 0.25
       memory = "0.5Gi"
     }
