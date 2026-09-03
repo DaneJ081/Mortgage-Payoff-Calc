@@ -12,6 +12,7 @@ on:
 
 env:
   IMAGE_NAME: mortcal
+  AWS_REGION: us-east-1
   RG_STG: mortcal-rg-stg
   ACA_APP_STG: mortcal-containerapp-stg
   RG_PROD: mortcal-rg-prod
@@ -80,15 +81,90 @@ jobs:
 
 
   # --------------------
-  # DEPLOY STG
+  # DEPLOY STG (AWS)
   # --------------------
-  deploy-stg:
-    name: Deploy to STG
+  deploy-stg-aws:
+    name: Deploy to STG (AWS)
     needs: build
     if: github.event_name == 'push'
 
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
 
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Render task definition
+        id: render
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: infra/aws/ecs/task-def-stg.json
+          container-name: mortcal-app
+          image: tiggy081/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.image_tag }}
+
+      - name: Deploy to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.render.outputs.task-definition }}
+          service: mortcal-svc-stg
+          cluster: mortcal-cluster-stg
+          wait-for-service-stability: true
+
+  # --------------------
+  # DEPLOY PROD (AWS, manual approval)
+  # --------------------
+  deploy-prod-aws:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    name: Deploy to PROD (AWS)
+    needs: [deploy-stg-aws, build]
+    runs-on: ubuntu-latest
+    environment: prod
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Render task definition
+        id: render
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: infra/aws/ecs/task-def-prod.json
+          container-name: mortcal-app
+          image: tiggy081/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.image_tag }}
+
+      - name: Deploy to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.render.outputs.task-definition }}
+          service: mortcal-svc-prod
+          cluster: mortcal-cluster-prod
+          wait-for-service-stability: true
+
+  # --------------------
+  # DEPLOY STG (Azure) - DORMANT
+  # infra/azure/ still provisions this if reapplied. Flip `if: false` back to
+  # `if: github.event_name == 'push'` to re-enable once Azure resources exist again.
+  # --------------------
+  deploy-stg-azure:
+    name: Deploy to STG (Azure)
+    needs: build
+    if: false
+
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v5
@@ -103,12 +179,13 @@ jobs:
             --image tiggy081/$IMAGE_NAME:${{ needs.build.outputs.image_tag }} \
 
   # --------------------
-  # DEPLOY PROD (manual approval)
+  # DEPLOY PROD (Azure, manual approval) - DORMANT
+  # Flip `if: false` back to the original condition to re-enable.
   # --------------------
-  deploy-prod:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    name: Deploy to PROD
-    needs: [deploy-stg, build]
+  deploy-prod-azure:
+    if: false
+    name: Deploy to PROD (Azure)
+    needs: [deploy-stg-azure, build]
     runs-on: ubuntu-latest
     environment: prod
 
