@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = ">= 4.0"
+    }
   }
 
   backend "s3" {
@@ -20,3 +24,6 @@ terraform {
 provider "aws" {
   region = var.region
 }
+
+# Reads the token from the CLOUDFLARE_API_TOKEN env var - never set inline here.
+provider "cloudflare" {}
