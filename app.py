@@ -2,18 +2,17 @@ import matplotlib
 
 matplotlib.use("Agg")
 
+import base64
 import io
 import matplotlib.pyplot as plt
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request
 from calc_logic import amortization_schedule, pretty_duration, format_k
 
 app = Flask(__name__)
-current_plot = None
 
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    global current_plot
     result = None
 
     if request.method == "POST":
@@ -28,7 +27,22 @@ def index():
             insurance = float(request.form["insurance"])
             HOA = float(request.form.get("HOA", 0))
             repairs = float(request.form.get("repairs", 0))
-        except Exception:
+
+            if loan <= 0:
+                raise ValueError("Home price must be positive")
+            if not 0 <= downpayment <= 100:
+                raise ValueError("Down payment must be between 0 and 100")
+            if rate < 0:
+                raise ValueError("Interest rate cannot be negative")
+            if term <= 0:
+                raise ValueError("Loan term must be positive")
+            if pmi_rate < 0:
+                raise ValueError("PMI rate cannot be negative")
+            if extra < 0:
+                raise ValueError("Extra payment cannot be negative")
+            if tax < 0 or insurance < 0 or HOA < 0 or repairs < 0:
+                raise ValueError("Costs cannot be negative")
+        except (ValueError, KeyError):
             return render_template("index.html", result={"error": "Invalid input"})
 
         # Down payment (%)
@@ -88,7 +102,9 @@ def index():
         plt.savefig(buf, format="png", dpi=120)
         plt.close()
         buf.seek(0)
-        current_plot = buf
+        plot_data_uri = "data:image/png;base64," + base64.b64encode(buf.read()).decode(
+            "ascii"
+        )
 
         result = {
             "monthlyPayment": round(monthly_payment),
@@ -99,17 +115,10 @@ def index():
             "totalInterest2": format_k(total_interest_extra),
             "interestDifference": format_k(interest_saved),
             "saved": saved_duration,
-            "plot": "/plot.png",
+            "plot": plot_data_uri,
         }
 
     return render_template("index.html", result=result)
-
-
-@app.route("/plot.png")
-def plot_png():
-    if not current_plot:
-        return "No plot available", 404
-    return send_file(io.BytesIO(current_plot.getvalue()), mimetype="image/png")
 
 
 if __name__ == "__main__":

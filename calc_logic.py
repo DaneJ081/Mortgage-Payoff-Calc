@@ -35,8 +35,11 @@ def amortization_schedule(
     total_payment = base_payment + fixed_costs + extra_payment
     balance = principal
     month = 0
+    # Hard cap so a payment that barely (or never) covers interest can't hang
+    # the request forever - well beyond any realistic mortgage term.
+    max_months = 1200  # 100 years
 
-    while balance > 0.01:
+    while balance > 0.01 and month < max_months:
         interest = balance * monthly_rate
         principal_paid = max(0, min(total_payment - fixed_costs - interest, balance))
         total_interest += interest

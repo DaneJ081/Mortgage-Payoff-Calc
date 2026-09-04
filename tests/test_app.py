@@ -1,4 +1,3 @@
-import io
 import pytest
 import app
 
@@ -30,6 +29,7 @@ def test_index_post_valid_data(client):
     response = client.post("/", data=data)
     assert response.status_code == 200
     assert b"1000" in response.data
+    assert b"data:image/png;base64," in response.data
 
 
 def test_index_post_invalid_data(client):
@@ -46,29 +46,46 @@ def test_index_post_invalid_data(client):
     assert b"Invalid input" in response.data
 
 
-def test_plot_endpoint_no_plot(client):
-    backup = app.current_plot
-    app.current_plot = None
-
-    response = client.get("/plot.png")
-    assert response.status_code == 404
-
-    app.current_plot = backup
-
-
-def test_plot_endpoint_with_plot(client):
-    buf = io.BytesIO()
-    app.plt.figure()
-    app.plt.plot([0, 1], [0, 1])
-    app.plt.savefig(buf, format="png")
-    app.plt.close()
-    buf.seek(0)
-
-    backup = app.current_plot
-    app.current_plot = buf
-
-    response = client.get("/plot.png")
+def test_index_post_zero_term_rejected(client):
+    data = {
+        "loan": "100000",
+        "rate": "5",
+        "term": "0",
+        "extra": "0",
+        "tax": "0",
+        "insurance": "0",
+    }
+    response = client.post("/", data=data)
     assert response.status_code == 200
-    assert response.content_type == "image/png"
+    assert b"Invalid input" in response.data
 
-    app.current_plot = backup
+
+def test_index_post_negative_extra_payment_rejected(client):
+    # Regression test: a negative extra payment used to make the amortization
+    # loop's principal reduction clamp to zero forever, hanging the request.
+    data = {
+        "loan": "100000",
+        "rate": "5",
+        "term": "30",
+        "extra": "-999999",
+        "tax": "0",
+        "insurance": "0",
+    }
+    response = client.post("/", data=data)
+    assert response.status_code == 200
+    assert b"Invalid input" in response.data
+
+
+def test_index_post_downpayment_over_100_rejected(client):
+    data = {
+        "loan": "100000",
+        "downpayment": "150",
+        "rate": "5",
+        "term": "30",
+        "extra": "0",
+        "tax": "0",
+        "insurance": "0",
+    }
+    response = client.post("/", data=data)
+    assert response.status_code == 200
+    assert b"Invalid input" in response.data

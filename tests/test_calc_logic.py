@@ -60,6 +60,15 @@ def test_amortization_schedule_extra_payment_reduces_term():
     assert total_interest_extra < total_interest_min
 
 
+def test_amortization_schedule_never_hangs_on_negative_payment():
+    # Defense-in-depth: even if a caller bypasses app-level validation, a
+    # payment that never covers interest must not loop forever.
+    balances, months, total_interest, _ = amortization_schedule(
+        principal=100_000, annual_rate=5, extra_payment=-999999, years=30
+    )
+    assert len(months) == 1200
+
+
 # ------------------------
 # Test pretty_duration
 # ------------------------
