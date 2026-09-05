@@ -4,6 +4,7 @@ matplotlib.use("Agg")
 
 import base64
 import io
+import math
 import matplotlib.pyplot as plt
 from flask import Flask, render_template, request
 from calc_logic import amortization_schedule, pretty_duration, format_k
@@ -28,6 +29,21 @@ def index():
             HOA = float(request.form.get("HOA", 0))
             repairs = float(request.form.get("repairs", 0))
 
+            if not all(
+                math.isfinite(v)
+                for v in (
+                    loan,
+                    downpayment,
+                    rate,
+                    pmi_rate,
+                    extra,
+                    tax,
+                    insurance,
+                    HOA,
+                    repairs,
+                )
+            ):
+                raise ValueError("Values must be finite numbers")
             if loan <= 0:
                 raise ValueError("Home price must be positive")
             if not 0 <= downpayment <= 100:
@@ -54,32 +70,25 @@ def index():
         if downpayment < 20:
             pmi = (pmi_rate / 100) * loan_amount
 
-        # Minimum payment schedule
-        balances_min, months_min, total_interest_min, monthly_payment = (
-            amortization_schedule(
-                principal=loan_amount,
-                annual_rate=rate,
-                extra_payment=0,
-                years=term,
-                tax=tax,
-                insurance=insurance,
-                HOA=HOA,
-                repairs=repairs,
-                pmi=pmi,
-            )
-        )
-
-        # Extra payment schedule
-        balances_extra, months_extra, total_interest_extra, _ = amortization_schedule(
+        common_kwargs = dict(
             principal=loan_amount,
             annual_rate=rate,
-            extra_payment=extra,
             years=term,
             tax=tax,
             insurance=insurance,
             HOA=HOA,
             repairs=repairs,
             pmi=pmi,
+        )
+
+        # Minimum payment schedule
+        balances_min, months_min, total_interest_min, monthly_payment = (
+            amortization_schedule(extra_payment=0, **common_kwargs)
+        )
+
+        # Extra payment schedule
+        balances_extra, months_extra, total_interest_extra, _ = amortization_schedule(
+            extra_payment=extra, **common_kwargs
         )
 
         interest_saved = total_interest_min - total_interest_extra

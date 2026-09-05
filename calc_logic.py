@@ -1,6 +1,10 @@
+def _monthly_rate(annual_rate):
+    return annual_rate / 12 / 100
+
+
 def calculate_monthly_principal_interest(principal, annual_rate, years):
     months = years * 12
-    monthly_rate = annual_rate / 12 / 100
+    monthly_rate = _monthly_rate(annual_rate)
     if monthly_rate == 0:
         return principal / months
     return (monthly_rate * principal) / (1 - (1 + monthly_rate) ** -months)
@@ -21,7 +25,7 @@ def amortization_schedule(
     months_list = []
     total_interest = 0.0
 
-    monthly_rate = annual_rate / 12 / 100
+    monthly_rate = _monthly_rate(annual_rate)
     base_payment = calculate_monthly_principal_interest(principal, annual_rate, years)
 
     fixed_costs = (
@@ -57,4 +61,6 @@ def pretty_duration(months):
 
 
 def format_k(amount):
-    return f"{round(amount / 1000)}"
+    if abs(amount) < 1000:
+        return f"{round(amount)}"
+    return f"{round(amount / 1000)}K"

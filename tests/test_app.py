@@ -76,6 +76,24 @@ def test_index_post_negative_extra_payment_rejected(client):
     assert b"Invalid input" in response.data
 
 
+@pytest.mark.parametrize("bad_rate", ["nan", "inf", "-inf"])
+def test_index_post_non_finite_rejected(client, bad_rate):
+    # Regression test: float() parses "nan"/"inf" successfully, and neither
+    # passed the existing bounds checks (e.g. inf > 0), letting non-finite
+    # values reach the calculation and produce garbage output.
+    data = {
+        "loan": "100000",
+        "rate": bad_rate,
+        "term": "30",
+        "extra": "0",
+        "tax": "0",
+        "insurance": "0",
+    }
+    response = client.post("/", data=data)
+    assert response.status_code == 200
+    assert b"Invalid input" in response.data
+
+
 def test_index_post_downpayment_over_100_rejected(client):
     data = {
         "loan": "100000",

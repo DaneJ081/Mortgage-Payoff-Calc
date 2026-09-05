@@ -132,9 +132,9 @@
                 {% else %}
                     <p><b>Base monthly payment:</b> ${{ result.monthlyPayment }}</p>
                     <p><b>Total monthly payment:</b> ${{ result.monthlyPayment + result.extra }}</p>
-                    <p><b>Payoff WITHOUT extra payment:</b> {{ result.payoff1 }} and ${{ result.totalInterest }}K interest</p>
-                    <p><b>Payoff WITH extra payment:</b> {{ result.payoff2 }} and ${{ result.totalInterest2 }}K interest</p>
-                    <p><b>Total saved:</b> {{ result.saved }} and ${{ result.interestDifference }}K interest</p>
+                    <p><b>Payoff WITHOUT extra payment:</b> {{ result.payoff1 }} and ${{ result.totalInterest }} interest</p>
+                    <p><b>Payoff WITH extra payment:</b> {{ result.payoff2 }} and ${{ result.totalInterest2 }} interest</p>
+                    <p><b>Total saved:</b> {{ result.saved }} and ${{ result.interestDifference }} interest</p>
 
                     <h3>Payoff Chart</h3>
                     <img src="{{ result.plot }}" width="100%" alt="Mortgage amortization graph">

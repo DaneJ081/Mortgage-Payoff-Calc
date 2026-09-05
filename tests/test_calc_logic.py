@@ -82,6 +82,9 @@ def test_pretty_duration(months, expected):
 # ------------------------
 # Test format_k
 # ------------------------
-@pytest.mark.parametrize("amount, expected", [(1200, "1"), (999_999, "1000"), (0, "0")])
+@pytest.mark.parametrize(
+    "amount, expected",
+    [(450, "450"), (1200, "1K"), (999_999, "1000K"), (0, "0")],
+)
 def test_format_k(amount, expected):
     assert format_k(amount) == expected
